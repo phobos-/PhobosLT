@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Phobos LapTimer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="jquery-3.6.3.min.js"></script>
+  <script src="articulate.min.js"></script>
+  <script src="smoothie.js"></script>
+</head>
+
+<body>
+
+  <h1 style="display:table-cell;vertical-align:middle">
+    <img src="favicon.ico" alt="PLT" style="width:64px;height:64px;">
+    Phobos LapTimer
+  </h1>
+
+  <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'config')">Configuration</button>
+    <button class="tablinks" onclick="openTab(event, 'race')">Race</button>
+    <button class="tablinks" onclick="openTab(event, 'calib')">Calibration</button>
+  </div>
+
+  <div id="config" class="tabcontent">
+    <div id="bandChannelFreq">
+      <select id="bandSelect">
+        <option value="A">Boscam A</option>
+        <option value="B">Boscam B</option>
+        <option value="E">Boscam E</option>
+        <option value="F">Fatshark</option>
+        <option value="R">RaceBand</option>
+        <option value="L">LowBand</option>
+      </select>
+      <select id="channelSelect">
+        <option value="1">Channel 1</option>
+        <option value="2">Channel 2</option>
+        <option value="3">Channel 3</option>
+        <option value="4">Channel 4</option>
+        <option value="5">Channel 5</option>
+        <option value="6">Channel 6</option>
+        <option value="7">Channel 7</option>
+        <option value="8">Channel 8</option>
+      </select>
+      <p>Frequency: <span id="freqOutput"></span></p>
+    </div>
+    <div>
+      <label for="minLap">Minimum Lap Time: </label>
+      <input type="range" id="minLap" step="0.5" min="1" max="10" value="5.0" oninput="updateMinLap(this,value)">
+      <span class="val">10.0s</span><br>
+    </div>
+    <div>
+      <label for="alarmThreshold">Battery Voltage Alarm Threshold: </label>
+      <input type="range" id="alarmThreshold" step="0.1" min="2.6" max="4.2" value="3.0"
+        oninput="updateAlarmThreshold(this,value)">
+      <span class="val">3.6v</span>
+    </div>
+    <div class="announcerParams">
+      <label for="announcerSelect">Announcer Type: </label>
+      <select id="announcerSelect">
+        <option value="none">None</option>
+        <option value="beep">Beep</option>
+        <option value="1lap">Lap Time</option>
+        <option value="2lap">Two Consecutive Laps Time</option>
+        <option value="3lap">Three Consecutive Laps Time</option>
+      </select><br>
+      <label for="rate">Announcer Rate:</label>
+      <input type="range" min="0.1" max="2" step="0.1" id="rate" value="1.0" oninput="updateAnnouncerRate(this,value)">
+      <span class="val">1.0</span><br>
+      <!-- <label for="voiceSelect">Announcer Voice:</label>
+        <div id="voiceSelect"></div> -->
+      <label for="pname">Pilot name: </label>
+      <input type="text" id="pname" maxlength="20"><br>
+    </div>
+    <label hidden for="ssid">WiFi SSID: </label>
+    <input hidden type="text" id="ssid" maxlength="32"><br>
+    <label hidden for="pwd">WiFi Password: </label>
+    <input hidden type="password" id="pwd" maxlength="32"><br>
+    <button onclick="saveConfig()">Save Configuration</button>
+  </div>
+
+  <div id="race" class="tabcontent">
+    <button id="startRaceButton" onclick="startRace()">Start Race</button>
+    <button id="stopRaceButton" onclick="stopRace()" disabled>Stop Race</button>
+    <button onclick="clearLaps()">Clear Laps</button>
+    <span id="timer">00:00:00 s</span>
+    <table id="lapTable">
+      <tr>
+        <th>Lap No</th>
+        <th>Lap Time</th>
+        <th>2 Lap Time</th>
+        <th>3 Lap Time</th>
+      </tr>
+    </table>
+  </div>
+
+  <div id="calib" class="tabcontent">
+    <div>
+      <label for="enter">Enter RSSI:</label>
+      <span id="enterSpan" class="val">120</span>
+      <input type="range" style="width:100%" min="50" max="255" step="1" id="enter" value="120" oninput="updateEnterRssi(this,value)">
+    </div>
+    <div>
+      <label for="exit">Exit RSSI:</label>
+      <span id="exitSpan" class="val">100</span>
+      <input type="range" style="width:100%" min="50" max="255" step="1" id="exit" value="100" oninput="updateExitRssi(this,value)">
+    </div>
+    <button onclick="saveConfig()">Save RSSI Thresholds</button>
+    <div>
+      <canvas id="rssiChart" style="height:300px;width:100%"></canvas>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
