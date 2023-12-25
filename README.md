@@ -1,6 +1,6 @@
 ![PhobosLT](assets/wq.png)![Logo](assets/logo.png)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Join us on Discord!](https://img.shields.io/discord/1180943146696319126)](https://discord.gg/jvpJppTT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Join us on Discord!](https://img.shields.io/discord/1180943146696319126)](https://discord.gg/D3MgfvsnAw)
 # Support PhobosLT
 **Affordable FPV single node Race Timing solution**
 
@@ -201,4 +201,4 @@ Once you run a few laps the screen will populate with lap times:
 
 # Community
 
-Join our [Discord](https://discord.gg/jvpJppTT) channel for support and questions or just to hang out! Everyone is welcome!
+Join our [Discord](https://discord.gg/D3MgfvsnAw) channel for support and questions or just to hang out! Everyone is welcome!
