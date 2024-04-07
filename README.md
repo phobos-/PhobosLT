@@ -136,6 +136,9 @@ This section is going to describe the usage and configuration of the timer. The 
 
 ![Homepage](assets/plt1.png)
 
+# 3D printed cases
+[ESP32 ESP-WROOM-32 by porlock](https://makerworld.com/en/models/400720)
+
 ### Configuration
 
 To configure the timer you need to click on the `Configuration` button. You should be greeted with a screen similar to this:
@@ -202,3 +205,4 @@ Once you run a few laps the screen will populate with lap times:
 # Community
 
 Join our [Discord](https://discord.gg/D3MgfvsnAw) channel for support and questions or just to hang out! Everyone is welcome!
+
