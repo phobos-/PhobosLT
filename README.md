@@ -121,6 +121,9 @@ Select `Project Tasks`, expand `PhobosLT` -> `Platform` and select `Upload Files
 
 If something went wrong - please check the Terminal, too. It will contain at least a hint of what the issue is. Please ask the community for further help on discord!
 
+#### 3D printed cases
+[ESP-WROOM-32 case by porlock](https://makerworld.com/en/models/400720)
+
 # Usage
 
 This section is going to describe the usage and configuration of the timer. The app consists of 3 pages and is very easy to use!
@@ -135,9 +138,6 @@ This section is going to describe the usage and configuration of the timer. The 
 6. Voila!
 
 ![Homepage](assets/plt1.png)
-
-# 3D printed cases
-[ESP-WROOM-32 case by porlock](https://makerworld.com/en/models/400720)
 
 ### Configuration
 
