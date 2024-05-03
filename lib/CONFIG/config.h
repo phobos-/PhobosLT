@@ -18,16 +18,35 @@
 
 */
 
+//ESP23-C3
+#if defined(ESP32C3)
+
+#define PIN_LED 1
+#define PIN_VBAT 0
+#define VBAT_SCALE 2
+#define VBAT_ADD 2
+#define PIN_RX5808_RSSI 3
+#define PIN_RX5808_DATA 6     //CH1
+#define PIN_RX5808_SELECT 7   //CH2
+#define PIN_RX5808_CLOCK 4    //CH3
+#define PIN_BUZZER 5
+#define BUZZER_INVERTED false
+
+//ESP32
+#else
+
 #define PIN_LED 21
 #define PIN_VBAT 35
 #define VBAT_SCALE 2
 #define VBAT_ADD 2
 #define PIN_RX5808_RSSI 33
-#define PIN_RX5808_DATA 19
-#define PIN_RX5808_SELECT 22
-#define PIN_RX5808_CLOCK 23
+#define PIN_RX5808_DATA 19   //CH1
+#define PIN_RX5808_SELECT 22 //CH2
+#define PIN_RX5808_CLOCK 23  //CH3
 #define PIN_BUZZER 27
 #define BUZZER_INVERTED false
+
+#endif
 
 #define EEPROM_RESERVED_SIZE 256
 #define CONFIG_MAGIC_MASK (0b11U << 30)
