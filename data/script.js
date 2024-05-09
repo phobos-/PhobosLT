@@ -53,7 +53,7 @@ var minRssiValue = exitRssi - 10;
 onload = function (e) {
   calib.style.display = "none";
   race.style.display = "none";
-  config.style.display = "none";
+  config.style.display = "block";
   fetch("/config")
     .then((response) => response.json())
     .then((config) => {

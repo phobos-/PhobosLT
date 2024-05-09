@@ -32,6 +32,20 @@
 #define PIN_BUZZER 5
 #define BUZZER_INVERTED false
 
+//ESP32-S3
+#elif defined(ESP32S3)
+
+#define PIN_LED 2
+#define PIN_VBAT 1
+#define VBAT_SCALE 2
+#define VBAT_ADD 2
+#define PIN_RX5808_RSSI 13
+#define PIN_RX5808_DATA 11     //CH1
+#define PIN_RX5808_SELECT 10   //CH2
+#define PIN_RX5808_CLOCK 12    //CH3
+#define PIN_BUZZER 3
+#define BUZZER_INVERTED false
+
 //ESP32
 #else
 
