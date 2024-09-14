@@ -22,6 +22,7 @@ class LapTimer {
     uint8_t getRssi();
     uint32_t getLapTime();
     bool isLapAvailable();
+    uint32_t getLastLapTime();
 
    private:
     laptimer_state_e state = STOPPED;

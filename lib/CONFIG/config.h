@@ -35,7 +35,7 @@
 //ESP32
 #else
 
-#define PIN_LED 21
+#define PIN_LED 16 //was 21
 #define PIN_VBAT 35
 #define VBAT_SCALE 2
 #define VBAT_ADD 2
@@ -87,6 +87,8 @@ class Config {
     uint8_t getExitRssi();
     char* getSsid();
     char* getPassword();
+    char* getPilotName();
+    const char* getFrequencyName();
 
    private:
     laptimer_config_t conf;
