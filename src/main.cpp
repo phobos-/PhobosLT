@@ -15,6 +15,8 @@ static TaskHandle_t xTimerTask = NULL;
 static void parallelTask(void *pvArgs) {
     for (;;) {
         uint32_t currentTimeMs = millis();
+        buzzer.handleBuzzer(currentTimeMs);
+        led.handleLed(currentTimeMs);
         ws.handleWebUpdate(currentTimeMs);
         config.handleEeprom(currentTimeMs);
         rx.handleFrequencyChange(currentTimeMs, config.getFrequency());

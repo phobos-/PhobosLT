@@ -2,7 +2,8 @@
 
 #include <DNSServer.h>
 #include <ESPmDNS.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
+#include <esp_wifi.h>
 
 #include "debug.h"
 
@@ -29,13 +30,15 @@ void Webserver::init(Config *config, LapTimer *lapTimer, BatteryMonitor *batMoni
     buz = buzzer;
     led = l;
 
-    wifi_ap_ssid = String(wifi_ap_ssid_prefix) + "_" + WiFi.macAddress();
+    wifi_ap_ssid = String(wifi_ap_ssid_prefix) + "_" + WiFi.macAddress().substring(WiFi.macAddress().length() - 6);
     wifi_ap_ssid.replace(":", "");
 
     WiFi.persistent(false);
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);
-    WiFi.setTxPower(WIFI_POWER_13dBm);
+    WiFi.setTxPower(WIFI_POWER_19_5dBm);
+    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_LR);
+    esp_wifi_set_protocol(WIFI_IF_AP, WIFI_PROTOCOL_LR);
     if (conf->getSsid()[0] == 0) {
         changeMode = WIFI_AP;
     } else {
@@ -178,7 +181,7 @@ static void handleRoot(AsyncWebServerRequest *request) {
     if (captivePortal(request)) {  // If captive portal redirect instead of displaying the page.
         return;
     }
-    request->send(SPIFFS, "/index.html", "text/html");
+    request->send(LittleFS, "/index.html", "text/html");
 }
 
 static void handleNotFound(AsyncWebServerRequest *request) {
@@ -204,12 +207,12 @@ static void handleNotFound(AsyncWebServerRequest *request) {
     request->send(response);
 }
 
-static bool startSPIFFS() {
-    if (!SPIFFS.begin()) {
-        DEBUG("SPIFFS mount failed\n");
+static bool startLittleFS() {
+    if (!LittleFS.begin()) {
+        DEBUG("LittleFS mount failed\n");
         return false;
     }
-    DEBUG("SPIFFS mounted sucessfully\n");
+    DEBUG("LittleFS mounted sucessfully\n");
     return true;
 }
 
@@ -232,7 +235,7 @@ void Webserver::startServices() {
         return;
     }
 
-    startSPIFFS();
+    startLittleFS();
 
     server.on("/", handleRoot);
     server.on("/generate_204", handleRoot);  // handle Andriod phones doing shit to detect if there is 'real' internet and possibly dropping conn.
@@ -256,7 +259,7 @@ Heap:\n\
 \tMin:\t%i\n\
 \tSize:\t%i\n\
 \tAlloc:\t%i\n\
-SPIFFS:\n\
+LittleFS:\n\
 \tUsed:\t%i\n\
 \tTotal:\t%i\n\
 Chip:\n\
@@ -272,7 +275,7 @@ EEPROM:\n\
 Battery Voltage:\t%0.1fv";
 
         snprintf(buf, sizeof(buf), format,
-                 ESP.getFreeHeap(), ESP.getMinFreeHeap(), ESP.getHeapSize(), ESP.getMaxAllocHeap(), SPIFFS.usedBytes(), SPIFFS.totalBytes(),
+                 ESP.getFreeHeap(), ESP.getMinFreeHeap(), ESP.getHeapSize(), ESP.getMaxAllocHeap(), LittleFS.usedBytes(), LittleFS.totalBytes(),
                  ESP.getChipModel(), ESP.getChipRevision(), ESP.getChipCores(), ESP.getSdkVersion(), ESP.getFlashChipSize(), ESP.getFlashChipSpeed() / 1000000, getCpuFrequencyMhz(),
                  WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), configBuf, voltage);
         request->send(200, "text/plain", buf);
@@ -319,7 +322,7 @@ Battery Voltage:\t%0.1fv";
         led->on(200);
     });
 
-    server.serveStatic("/", SPIFFS, "/");
+    server.serveStatic("/", LittleFS, "/");
 
     events.onConnect([this](AsyncEventSourceClient *client) {
         if (client->lastId()) {
