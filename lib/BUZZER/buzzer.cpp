@@ -5,7 +5,7 @@ void Buzzer::init(uint8_t pin, bool inverted) {
     initialState = inverted ? HIGH : LOW;
     buzzerPin = pin;
     buzzerState = BUZZER_IDLE;
-    digitalWrite(buzzerPin, inverted);
+    digitalWrite(buzzerPin, initialState);
 }
 
 void Buzzer::beep(uint32_t timeMs) {
