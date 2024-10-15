@@ -20,7 +20,7 @@ void LapTimer::init(Config *config, RX5808 *rx5808, Buzzer *buzzer, Led *l) {
 
 void LapTimer::start() {
     DEBUG("LapTimer started\n");
-    state = WAITING;
+    state = RUNNING;
     buz->beep(500);
     led->on(500);
 }
