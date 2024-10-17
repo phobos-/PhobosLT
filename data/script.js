@@ -20,7 +20,7 @@ const freqLookup = [
   [5705, 5685, 5665, 5645, 5885, 5905, 5925, 5945],
   [5740, 5760, 5780, 5800, 5820, 5840, 5860, 5880],
   [5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917],
-  [5362, 5399, 5436, 5473, 5510, 5547, 5584, 5621]
+  [5362, 5399, 5436, 5473, 5510, 5547, 5584, 5621],
 ];
 
 const calib = document.getElementById("calib");
@@ -32,8 +32,8 @@ var enterRssi = 120,
 var frequency = 0;
 var announcerRate = 1.0;
 
-var lapNo = 0;
-var last2laps = [];
+var lapNo = -1;
+var lapTimes = [];
 
 var timerInterval;
 const timer = document.getElementById("timer");
@@ -81,16 +81,16 @@ onload = function (e) {
       clearLaps();
       createRssiChart();
     });
-}
+};
 
 function addRssiPoint() {
   if (calib.style.display != "none") {
     rssiChart.start();
     if (rssiBuffer.length > 0) {
       rssiValue = parseInt(rssiBuffer.shift());
-      if (crossing && (rssiValue < exitRssi)) {
+      if (crossing && rssiValue < exitRssi) {
         crossing = false;
-      } else if (!crossing && (rssiValue > enterRssi)) {
+      } else if (!crossing && rssiValue > enterRssi) {
         crossing = true;
       }
       maxRssiValue = Math.max(maxRssiValue, rssiValue);
@@ -99,19 +99,13 @@ function addRssiPoint() {
 
     // update horizontal lines and min max values
     rssiChart.options.horizontalLines = [
-      { color: 'hsl(8.2, 86.5%, 53.7%)', lineWidth: 1.7, value: enterRssi }, // red
-      { color: 'hsl(25, 85%, 55%)', lineWidth: 1.7, value: exitRssi }, // orange
+      { color: "hsl(8.2, 86.5%, 53.7%)", lineWidth: 1.7, value: enterRssi }, // red
+      { color: "hsl(25, 85%, 55%)", lineWidth: 1.7, value: exitRssi }, // orange
     ];
 
-    rssiChart.options.maxValue = Math.max(
-      maxRssiValue,
-      enterRssi + 10,
-    );
+    rssiChart.options.maxValue = Math.max(maxRssiValue, enterRssi + 10);
 
-    rssiChart.options.minValue = Math.max(0, Math.min(
-      minRssiValue,
-      exitRssi - 10,
-    ));
+    rssiChart.options.minValue = Math.max(0, Math.min(minRssiValue, exitRssi - 10));
 
     var now = Date.now();
     rssiSeries.append(now, rssiValue);
@@ -134,26 +128,26 @@ function createRssiChart() {
     responsive: true,
     millisPerPixel: 50,
     grid: {
-      strokeStyle: 'rgba(255,255,255,0.25)',
+      strokeStyle: "rgba(255,255,255,0.25)",
       sharpLines: true,
       verticalSections: 0,
-      borderVisible: false
+      borderVisible: false,
     },
     labels: {
-      precision: 0
+      precision: 0,
     },
     maxValue: 1,
     minValue: 0,
   });
   rssiChart.addTimeSeries(rssiSeries, {
     lineWidth: 1.7,
-    strokeStyle: 'hsl(214, 53%, 60%)',
-    fillStyle: 'hsla(214, 53%, 60%, 0.4)'
+    strokeStyle: "hsl(214, 53%, 60%)",
+    fillStyle: "hsla(214, 53%, 60%, 0.4)",
   });
   rssiChart.addTimeSeries(rssiCrossingSeries, {
     lineWidth: 1.7,
-    strokeStyle: 'none',
-    fillStyle: 'hsla(136, 71%, 70%, 0.3)'
+    strokeStyle: "none",
+    fillStyle: "hsla(136, 71%, 70%, 0.3)",
   });
   rssiChart.streamTo(document.getElementById("rssiChart"), 200);
 }
@@ -179,32 +173,32 @@ function openTab(evt, tabName) {
   evt.currentTarget.className += " active";
 
   // if event comes from calibration tab, signal to start sending RSSI events
-  if (tabName === 'calib' && !rssiSending) {
-    fetch('/timer/rssiStart', {
-      method: 'POST',
+  if (tabName === "calib" && !rssiSending) {
+    fetch("/timer/rssiStart", {
+      method: "POST",
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     })
-      .then(response => {
+      .then((response) => {
         if (response.ok) rssiSending = true;
         return response.json();
       })
-      .then(response => console.log('/timer/rssiStart:' + JSON.stringify(response)))
+      .then((response) => console.log("/timer/rssiStart:" + JSON.stringify(response)));
   } else if (rssiSending) {
-    fetch('/timer/rssiStop', {
-      method: 'POST',
+    fetch("/timer/rssiStop", {
+      method: "POST",
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     })
-      .then(response => {
+      .then((response) => {
         if (response.ok) rssiSending = false;
         return response.json();
       })
-      .then(response => console.log('/timer/rssiStop:' + JSON.stringify(response)))
+      .then((response) => console.log("/timer/rssiStop:" + JSON.stringify(response)));
   }
 }
 
@@ -229,27 +223,27 @@ function updateExitRssi(obj, value) {
 }
 
 function saveConfig() {
-  fetch('/config', {
-    method: 'POST',
+  fetch("/config", {
+    method: "POST",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      "freq": frequency,
-      "minLap": parseInt(minLapInput.value * 10),
-      "alarm": parseInt(alarmThreshold.value * 10),
-      "anType": announcerSelect.selectedIndex,
-      "anRate": parseInt(announcerRate * 10),
-      "enterRssi": enterRssi,
-      "exitRssi": exitRssi,
-      "name": pilotNameInput.value,
-      "ssid": ssidInput.value,
-      "pwd": pwdInput.value
-    })
+      freq: frequency,
+      minLap: parseInt(minLapInput.value * 10),
+      alarm: parseInt(alarmThreshold.value * 10),
+      anType: announcerSelect.selectedIndex,
+      anRate: parseInt(announcerRate * 10),
+      enterRssi: enterRssi,
+      exitRssi: exitRssi,
+      name: pilotNameInput.value,
+      ssid: ssidInput.value,
+      pwd: pwdInput.value,
+    }),
   })
-    .then(response => response.json())
-    .then(response => console.log('/config:' + JSON.stringify(response)))
+    .then((response) => response.json())
+    .then((response) => console.log("/config:" + JSON.stringify(response)));
 }
 
 function populateFreqOutput() {
@@ -269,11 +263,17 @@ function updateAnnouncerRate(obj, value) {
 }
 
 function updateMinLap(obj, value) {
-  $(obj).parent().find("span").text(parseFloat(value).toFixed(1) + 's');
+  $(obj)
+    .parent()
+    .find("span")
+    .text(parseFloat(value).toFixed(1) + "s");
 }
 
 function updateAlarmThreshold(obj, value) {
-  $(obj).parent().find("span").text(parseFloat(value).toFixed(1) + 'v');
+  $(obj)
+    .parent()
+    .find("span")
+    .text(parseFloat(value).toFixed(1) + "v");
 }
 
 // function getAnnouncerVoices() {
@@ -301,60 +301,59 @@ function addLap(lapStr) {
   const newLap = parseFloat(lapStr);
   lapNo += 1;
   const table = document.getElementById("lapTable");
-  const row = table.insertRow(lapNo);
+  const row = table.insertRow(lapNo + 1);
   const cell1 = row.insertCell(0);
   const cell2 = row.insertCell(1);
   const cell3 = row.insertCell(2);
   const cell4 = row.insertCell(3);
   cell1.innerHTML = lapNo;
-  cell2.innerHTML = lapStr;
-  if (last2laps.length >= 1) {
-    last2lapStr = (newLap + last2laps[last2laps.length - 1]).toFixed(2);
-    cell3.innerHTML = last2lapStr;
+  if (lapNo == 0) {
+    cell2.innerHTML = "Hole Shot";
+  } else {
+    cell2.innerHTML = lapStr + " s";
   }
-  if (last2laps.length >= 2) {
-    last3lapStr = (
-      newLap +
-      last2laps.shift() +
-      last2laps[last2laps.length - 1]
-    ).toFixed(2);
-    cell4.innerHTML = last3lapStr;
+  if (lapTimes.length >= 2 && lapNo != 0) {
+    last2lapStr = (newLap + lapTimes[lapTimes.length - 1]).toFixed(2);
+    cell3.innerHTML = last2lapStr + " s";
   }
+  if (lapTimes.length >= 3 && lapNo != 0) {
+    last3lapStr = (newLap + lapTimes[lapTimes.length - 2] + lapTimes[lapTimes.length - 1]).toFixed(2);
+    cell4.innerHTML = last3lapStr + " s";
+  }
+
   switch (announcerSelect.options[announcerSelect.selectedIndex].value) {
     case "beep":
       beep(100, 330, "square");
       break;
     case "1lap":
-      const lapNoStr = pilotName + " Lap " + lapNo + ", ";
-      const text = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
-      $(text).articulate("rate", announcerRate).articulate("speak");
+      if (lapNo == 0) {
+        $("<p>Hole Shot<p>").articulate("rate", announcerRate).articulate("speak");
+      } else {
+        const lapNoStr = pilotName + " Lap " + lapNo + ", ";
+        const text = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
+        $(text).articulate("rate", announcerRate).articulate("speak");
+      }
       break;
     case "2lap":
-      if (last2lapStr != "") {
-        const text2 =
-          "<p>" +
-          pilotName +
-          " 2 laps " +
-          last2lapStr.replace(".", ",") +
-          "</p>";
+      if (lapNo == 0) {
+        $("<p>Hole Shot<p>").articulate("rate", announcerRate).articulate("speak");
+      } else if (last2lapStr != "") {
+        const text2 = "<p>" + pilotName + " 2 laps " + last2lapStr.replace(".", ",") + "</p>";
         $(text2).articulate("rate", announcerRate).articulate("speak");
       }
       break;
     case "3lap":
-      if (last3lapStr != "") {
-        const text3 =
-          "<p>" +
-          pilotName +
-          " 3 laps " +
-          last3lapStr.replace(".", ",") +
-          "</p>";
+      if (lapNo == 0) {
+        $("<p>Hole Shot<p>").articulate("rate", announcerRate).articulate("speak");
+      } else if (last3lapStr != "") {
+        const text3 = "<p>" + pilotName + " 3 laps " + last3lapStr.replace(".", ",") + "</p>";
         $(text3).articulate("rate", announcerRate).articulate("speak");
       }
       break;
     default:
       break;
   }
-  last2laps.push(newLap);
+  lapTimes.push(newLap);
 }
 
 function startTimer() {
@@ -383,15 +382,15 @@ function startTimer() {
     timer.innerHTML = `${m}:${s}:${ms} s`;
   }, 10);
 
-  fetch('/timer/start', {
-    method: 'POST',
+  fetch("/timer/start", {
+    method: "POST",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    }
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
   })
-    .then(response => response.json())
-    .then(response => console.log('/timer/start:' + JSON.stringify(response)))
+    .then((response) => response.json())
+    .then((response) => console.log("/timer/start:" + JSON.stringify(response)));
 }
 
 async function startRace() {
@@ -413,15 +412,15 @@ function stopRace() {
   clearInterval(timerInterval);
   timer.innerHTML = "00:00:00 s";
 
-  fetch('/timer/stop', {
-    method: 'POST',
+  fetch("/timer/stop", {
+    method: "POST",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    }
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
   })
-    .then(response => response.json())
-    .then(response => console.log('/timer/stop:' + JSON.stringify(response)))
+    .then((response) => response.json())
+    .then((response) => console.log("/timer/stop:" + JSON.stringify(response)));
 
   stopRaceButton.disabled = true;
   startRaceButton.disabled = false;
@@ -433,36 +432,52 @@ function clearLaps() {
   for (var i = tableHeaderRowCount; i < rowCount; i++) {
     lapTable.deleteRow(tableHeaderRowCount);
   }
-  lapNo = 0;
-  last2laps = [];
+  lapNo = -1;
+  lapTimes = [];
 }
 
 if (!!window.EventSource) {
-  var source = new EventSource('/events');
+  var source = new EventSource("/events");
 
-  source.addEventListener('open', function (e) {
-    console.log("Events Connected");
-  }, false);
+  source.addEventListener(
+    "open",
+    function (e) {
+      console.log("Events Connected");
+    },
+    false
+  );
 
-  source.addEventListener('error', function (e) {
-    if (e.target.readyState != EventSource.OPEN) {
-      console.log("Events Disconnected");
-    }
-  }, false);
+  source.addEventListener(
+    "error",
+    function (e) {
+      if (e.target.readyState != EventSource.OPEN) {
+        console.log("Events Disconnected");
+      }
+    },
+    false
+  );
 
-  source.addEventListener('rssi', function (e) {
-    rssiBuffer.push(e.data);
-    if (rssiBuffer.length > 10) {
-      rssiBuffer.shift();
-    }
-    console.log("rssi", e.data, "buffer size", rssiBuffer.length);
-  }, false);
+  source.addEventListener(
+    "rssi",
+    function (e) {
+      rssiBuffer.push(e.data);
+      if (rssiBuffer.length > 10) {
+        rssiBuffer.shift();
+      }
+      console.log("rssi", e.data, "buffer size", rssiBuffer.length);
+    },
+    false
+  );
 
-  source.addEventListener('lap', function (e) {
-    var lap = (parseFloat(e.data) / 1000).toFixed(2);
-    addLap(lap);
-    console.log("lap raw:", e.data, " formatted:", lap);
-  }, false);
+  source.addEventListener(
+    "lap",
+    function (e) {
+      var lap = (parseFloat(e.data) / 1000).toFixed(2);
+      addLap(lap);
+      console.log("lap raw:", e.data, " formatted:", lap);
+    },
+    false
+  );
 }
 
 function setBandChannelIndex(freq) {
