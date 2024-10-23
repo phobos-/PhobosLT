@@ -35,6 +35,9 @@ var announcerRate = 1.0;
 var lapNo = -1;
 var lapTimes = [];
 
+let fastestLaps = [Infinity, Infinity, Infinity]; // [fastest 1-lap, fastest 2-laps, fastest 3-laps]
+let fastestLapRows = [null, null, null]; // [row for fastest 1-lap, row for fastest 2-laps, row for fastest 3-laps]
+
 var timerInterval;
 const timer = document.getElementById("timer");
 const startRaceButton = document.getElementById("startRaceButton");
@@ -293,6 +296,8 @@ function beep(duration, frequency, type) {
   }, duration);
 }
 
+
+
 function addLap(lapStr) {
   $().articulate("stop");
   const pilotName = pilotNameInput.value;
@@ -306,21 +311,69 @@ function addLap(lapStr) {
   const cell2 = row.insertCell(1);
   const cell3 = row.insertCell(2);
   const cell4 = row.insertCell(3);
+
+  // Add the lap number to the table
   cell1.innerHTML = lapNo;
+
+  // Set Lap Time
   if (lapNo == 0) {
     cell2.innerHTML = "Hole Shot";
   } else {
     cell2.innerHTML = lapStr + " s";
+    if (newLap < fastestLaps[0]) {
+      // Reset previous fastest 1-lap styling
+      if (fastestLapRows[0]) {
+        fastestLapRows[0].cells[1].style.fontWeight = "";
+      }
+
+      // Update fastest 1-lap time
+      fastestLaps[0] = newLap;
+      fastestLapRows[0] = row;
+
+      // Apply new styling
+      cell2.style.fontWeight = "bold";
+    }
   }
+
+  // Set 2 Lap Time
   if (lapTimes.length >= 2 && lapNo != 0) {
     last2lapStr = (newLap + lapTimes[lapTimes.length - 1]).toFixed(2);
     cell3.innerHTML = last2lapStr + " s";
+    if (parseFloat(last2lapStr) < fastestLaps[1]) {
+      // Reset previous fastest 2-lap styling
+      if (fastestLapRows[1]) {
+        fastestLapRows[1].cells[2].style.fontWeight = "";
+      }
+
+      // Update fastest 2-lap time
+      fastestLaps[1] = parseFloat(last2lapStr);
+      fastestLapRows[1] = row;
+
+      // Apply new styling
+      cell3.style.fontWeight = "bold";
+    }
   }
+
+  // Set 3 Lap Time
   if (lapTimes.length >= 3 && lapNo != 0) {
     last3lapStr = (newLap + lapTimes[lapTimes.length - 2] + lapTimes[lapTimes.length - 1]).toFixed(2);
     cell4.innerHTML = last3lapStr + " s";
+    if (parseFloat(last3lapStr) < fastestLaps[2]) {
+      // Reset previous fastest 3-lap styling
+      if (fastestLapRows[2]) {
+        fastestLapRows[2].cells[3].style.fontWeight = "";
+      }
+
+      // Update fastest 3-lap time
+      fastestLaps[2] = parseFloat(last3lapStr);
+      fastestLapRows[2] = row;
+
+      // Apply new styling
+      cell4.style.fontWeight = "bold";
+    }
   }
 
+  // Announce Lap Times
   switch (announcerSelect.options[announcerSelect.selectedIndex].value) {
     case "beep":
       beep(100, 330, "square");
@@ -353,6 +406,8 @@ function addLap(lapStr) {
     default:
       break;
   }
+
+  // Add the current lap time to the list of lap times
   lapTimes.push(newLap);
 }
 
@@ -434,6 +489,8 @@ function clearLaps() {
   }
   lapNo = -1;
   lapTimes = [];
+  fastestLaps = [Infinity, Infinity, Infinity]; // [fastest 1-lap, fastest 2-laps, fastest 3-laps]
+  fastestLapRows = [null, null, null]; // [row for fastest 1-lap, row for fastest 2-laps, row for fastest 3-laps]
 }
 
 if (!!window.EventSource) {

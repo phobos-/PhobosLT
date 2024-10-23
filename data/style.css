@@ -104,6 +104,17 @@ main {
   min-width: 170px;
   font-weight: bold;
 }
+@media (max-width: 600px) {
+  .config-item input[type="text"],
+  .config-item input[type="password"],
+  .config-item select,
+  .input-with-value {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0;
+  }
+}
 
 .config-item input[type="text"],
 .config-item input[type="password"],
@@ -120,6 +131,7 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-right: 5px;
 }
 
 .input-with-value input[type="range"] {
