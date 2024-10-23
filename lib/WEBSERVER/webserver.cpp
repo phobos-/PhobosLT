@@ -322,7 +322,7 @@ Battery Voltage:\t%0.1fv";
         led->on(200);
     });
 
-    server.serveStatic("/", LittleFS, "/");
+    server.serveStatic("/", LittleFS, "/").setCacheControl("max-age=600");
 
     events.onConnect([this](AsyncEventSourceClient *client) {
         if (client->lastId()) {
