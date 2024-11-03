@@ -1,4 +1,5 @@
 #include "webserver.h"
+#include <ElegantOTA.h>
 
 #include <DNSServer.h>
 #include <ESPmDNS.h>
@@ -322,7 +323,7 @@ Battery Voltage:\t%0.1fv";
         led->on(200);
     });
 
-    server.serveStatic("/", LittleFS, "/");
+    server.serveStatic("/", LittleFS, "/").setCacheControl("max-age=600");
 
     events.onConnect([this](AsyncEventSourceClient *client) {
         if (client->lastId()) {
@@ -341,6 +342,9 @@ Battery Voltage:\t%0.1fv";
 
     server.addHandler(&events);
     server.addHandler(configJsonHandler);
+
+    ElegantOTA.setAutoReboot(true);
+    ElegantOTA.begin(&server);
 
     server.begin();
 

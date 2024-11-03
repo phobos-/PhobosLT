@@ -23,6 +23,7 @@
         <li><a id="nav-link-config" class="tablinks active" onclick="openTab(event, 'config')">Configuration</a></li>
         <li><a id="nav-link-race" class="tablinks" onclick="openTab(event, 'race')">Race</a></li>
         <li><a id="nav-link-calib" class="tablinks" onclick="openTab(event, 'calib')">Calibration</a></li>
+        <li><a id="nav-link-ota" class="tablinks" onclick="openTab(event, 'ota')">Update</a></li>
       </ul>
     </header>
 
@@ -150,6 +151,12 @@
           </div>
         </div>
         <button onclick="saveConfig()">Save RSSI Thresholds</button>
+      </div>
+
+      <div id="ota" class="tabcontent">
+        <div class="firmware-update">
+            <iframe src="http://20.0.0.1/update" width="100%" height="600px" frameborder="0"></iframe>
+        </div>
       </div>
     </main>
 

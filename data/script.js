@@ -23,9 +23,10 @@ const freqLookup = [
   [5362, 5399, 5436, 5473, 5510, 5547, 5584, 5621],
 ];
 
-const calib = document.getElementById("calib");
-const race = document.getElementById("race");
 const config = document.getElementById("config");
+const race = document.getElementById("race");
+const calib = document.getElementById("calib");
+const ota = document.getElementById("ota");
 
 var enterRssi = 120,
   exitRssi = 100;
@@ -51,9 +52,10 @@ var maxRssiValue = enterRssi + 10;
 var minRssiValue = exitRssi - 10;
 
 onload = function (e) {
-  calib.style.display = "none";
-  race.style.display = "none";
   config.style.display = "block";
+  race.style.display = "none";
+  calib.style.display = "none";
+  ota.style.display = "none";
   fetch("/config")
     .then((response) => response.json())
     .then((config) => {
