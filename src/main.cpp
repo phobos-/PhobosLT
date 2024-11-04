@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "led.h"
 #include "webserver.h"
+#include <ElegantOTA.h>
 
 static RX5808 rx(PIN_RX5808_RSSI, PIN_RX5808_DATA, PIN_RX5808_SELECT, PIN_RX5808_CLOCK);
 static Config config;
@@ -48,4 +49,5 @@ void setup() {
 void loop() {
     uint32_t currentTimeMs = millis();
     timer.handleLapTimerUpdate(currentTimeMs);
+    ElegantOTA.loop();
 }
