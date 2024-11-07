@@ -1,54 +1,160 @@
-/* Style the tab */
-.tab {
-  overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
+:root {
+  --primary-color: #7cb5ec;
+  --primary-color-dark: #5a9bd8;
+  --secondary-color: #434348;
+  --background-color: #f8f9fa;
+  --text-color: #333;
+  --border-color: #dee2e6;
 }
 
-/* Style the buttons that are used to open the tab content */
-.tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Change background color of buttons on hover */
-.tab button:hover {
-  background-color: #ddd;
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-/* Create an active/current tablink class */
-.tab button.active {
-  background-color: #ccc;
+header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Style the tab content */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo h1 {
+  margin-left: 16px;
+  font-size: 32px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 16px;
+  padding-top: 16px;
+  justify-content: space-around;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+main {
+  margin: 8px;
+  padding: 0 8px;
+  flex-grow: 1;
+}
+
 .tabcontent {
-  display: none;
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-top: none;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px; 
+}
+
+.config-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#bandChannelFreq {
+  display: flex;
+  gap: 16px;
+}
+
+#bandChannelFreq label {
+  min-width: 0px;
+  padding-right: 16px;
+}
+
+.config-item {
+  display: flex;
+}
+
+.config-item label {
+  min-width: 170px;
+  font-weight: bold;
+}
+
+.config-item input[type="text"],
+.config-item input[type="password"],
+.config-item select,
+.input-with-value {
+  flex: 1;
+}
+
+.config-item select {
+  min-width: 50px;
+}
+
+.input-with-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-with-value input[type="range"] {
+  flex-grow: 1;
+}
+
+.input-with-value .val {
+  width: 35px;
+  text-align: left;
+}
+
+#freqOutput {
+  font-weight: bold;
 }
 
 button {
-  background-color: #f1f1f1;
-  border: 1px solid #ccc;
-  outline: none;
+  margin: 12px 0;
+  padding: 8px 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
+  transition: background-color 0.3s;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 button:hover {
-  background-color: #ddd;
+  background-color: var(--primary-color-dark);
 }
 
-button.active {
-  background-color: #ccc;
+.racebuttons {
+  display: flex;
+  justify-content: space-around;
 }
 
 table {
@@ -56,23 +162,81 @@ table {
   border-collapse: collapse;
 }
 
-table td,
+table th,
+table td {
+  padding: 6px;
+  border: 1px solid var(--border-color);
+}
+
 table th {
-  border: 1px solid #ddd;
-  padding: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: normal;
 }
 
 table tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
-table tr:hover {
-  background-color: #ddd;
+#timer {
+  font-size: 24px;
+  font-weight: bold;
+  display: block;
+  text-align: center;
 }
 
-table th {
-  background-color: #7cb5ec;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
+#rssiChart {
+  width: 100%;
+  height: 350px;
+  margin-top: 8px;
+}
+
+footer {
+  text-align: center;
+  padding: 16px;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+@media (max-width: 150px) {
+  nav {
+      flex-direction: column;
+  }
+
+  .nav-links {
+      margin-top: 16px;
+  }
+
+  .nav-links li {
+      margin: 8px 0;
+  }
+
+  .config-item {
+      flex-direction: column;
+      align-items: stretch;
+  }
+
+  .config-item label {
+      flex: 0 0 auto;
+      margin-bottom: 8px;
+  }
+
+  .input-with-value {
+      flex-direction: column;
+      align-items: stretch;
+  }
+
+  .input-with-value .val {
+      text-align: left;
+      margin-top: 8px;
+  }
+
+  table {
+      font-size: 14px;
+  }
+
+  table th,
+  table td {
+      padding: 8px;
+  }
 }

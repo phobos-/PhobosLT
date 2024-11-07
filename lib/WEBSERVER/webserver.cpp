@@ -1,4 +1,5 @@
 #include "webserver.h"
+#include <ElegantOTA.h>
 
 #include <DNSServer.h>
 #include <ESPmDNS.h>
@@ -341,6 +342,9 @@ Battery Voltage:\t%0.1fv";
 
     server.addHandler(&events);
     server.addHandler(configJsonHandler);
+
+    ElegantOTA.setAutoReboot(true);
+    ElegantOTA.begin(&server);
 
     server.begin();
 
