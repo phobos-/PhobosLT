@@ -81,6 +81,8 @@ typedef struct {
     char pilotName[21];
     char ssid[33];
     char password[33];
+    char band[5];
+    uint8_t channel;
 } laptimer_config_t;
 
 class Config {
@@ -101,6 +103,8 @@ class Config {
     uint8_t getExitRssi();
     char* getSsid();
     char* getPassword();
+    char* getBand();
+    uint8_t getChannel();
 
    private:
     laptimer_config_t conf;

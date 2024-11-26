@@ -20,7 +20,12 @@ const freqLookup = [
   [5705, 5685, 5665, 5645, 5885, 5905, 5925, 5945],
   [5740, 5760, 5780, 5800, 5820, 5840, 5860, 5880],
   [5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917],
-  [5362, 5399, 5436, 5473, 5510, 5547, 5584, 5621]
+  [5362, 5399, 5436, 5473, 5510, 5547, 5584, 5621],
+  [5660, 5965, 5735, 5770, 5805, 5878, 5914, 5839], //Walksnail Avatar 25MB
+  [5658, 5659, 5732, 5769, 5806, 5843, 5880, 5917], //Walksnail Avatar Race Mode
+  [5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917], //HDZero
+  [5660, 5695, 5735, 5770, 5805, 5878, 5914, 5839], //DJI V1 Air Unit, Vista
+  [5669, 5705, 5768, 5804, 5839, 5876, 5912, 1111] //DJI O3 10-20Mhz
 ];
 
 const calib = document.getElementById("calib");
@@ -31,6 +36,10 @@ var enterRssi = 120,
   exitRssi = 100;
 var frequency = 0;
 var announcerRate = 1.0;
+
+//For storage of new Walksnail, HDZero and DJI channels
+var band = "";
+var channel = 0;
 
 var lapNo = 0;
 var last2laps = [];
@@ -58,7 +67,7 @@ onload = function (e) {
     .then((response) => response.json())
     .then((config) => {
       console.log(config);
-      setBandChannelIndex(config.freq);
+      setBandChannel(config.band, config.channel);
       minLapInput.value = (parseFloat(config.minLap) / 10).toFixed(1);
       updateMinLap(minLapInput, minLapInput.value);
       alarmThreshold.value = (parseFloat(config.alarm) / 10).toFixed(1);
@@ -245,7 +254,9 @@ function saveConfig() {
       "exitRssi": exitRssi,
       "name": pilotNameInput.value,
       "ssid": ssidInput.value,
-      "pwd": pwdInput.value
+      "pwd": pwdInput.value,
+      "band": band,
+      "channel": channel
     })
   })
     .then(response => response.json())
@@ -253,10 +264,11 @@ function saveConfig() {
 }
 
 function populateFreqOutput() {
-  let band = bandSelect.options[bandSelect.selectedIndex].value;
-  let chan = channelSelect.options[channelSelect.selectedIndex].value;
+  band = bandSelect.options[bandSelect.selectedIndex].value;
+  channel = channelSelect.options[channelSelect.selectedIndex].value;
   frequency = freqLookup[bandSelect.selectedIndex][channelSelect.selectedIndex];
-  freqOutput.textContent = band + chan + " " + frequency;
+  let bandName = bandSelect.options[bandSelect.selectedIndex].text;
+  freqOutput.textContent = bandName + "[" + channel + "] - " + frequency + "Mhz";
 }
 
 bcf.addEventListener("change", function handleChange(event) {
@@ -465,13 +477,7 @@ if (!!window.EventSource) {
   }, false);
 }
 
-function setBandChannelIndex(freq) {
-  for (var i = 0; i < freqLookup.length; i++) {
-    for (var j = 0; j < freqLookup[i].length; j++) {
-      if (freqLookup[i][j] == freq) {
-        bandSelect.selectedIndex = i;
-        channelSelect.selectedIndex = j;
-      }
-    }
-  }
+function setBandChannel(band, channel) {
+  $(bandSelect).val(band).change();
+  $(channelSelect).val(channel).change();
 }
