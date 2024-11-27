@@ -375,7 +375,7 @@ function addLap(lapStr) {
 
   const timelap = parseFloat(lapStr).toFixed(2);
   arrayLaps.push(timelap);
-  const fastestlap = Math.min(...arrayLaps);
+  const fastestlap = Math.min(...arrayLaps).toFixed(2);
 
   if (fastestlap.toString() === timelap.toString()) {
     fastestlaptimeElem.innerText = "Fastest Lap Time: " + fastestlap + "s";
