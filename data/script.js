@@ -39,6 +39,7 @@ var timerInterval;
 const timer = document.getElementById("timer");
 const startRaceButton = document.getElementById("startRaceButton");
 const stopRaceButton = document.getElementById("stopRaceButton");
+const fastestlaptimeElem = document.getElementById("fastestlaptime");
 
 const rssiBuffer = [];
 var rssiValue = 0;
@@ -49,11 +50,15 @@ var rssiSeries = new TimeSeries();
 var rssiCrossingSeries = new TimeSeries();
 var maxRssiValue = enterRssi + 10;
 var minRssiValue = exitRssi - 10;
+var arrayLaps = [];
 
 onload = function (e) {
   calib.style.display = "none";
   race.style.display = "none";
   config.style.display = "block";
+
+  var batteryElem = document.getElementById("battery")
+
   fetch("/config")
     .then((response) => response.json())
     .then((config) => {
@@ -80,6 +85,19 @@ onload = function (e) {
       timer.innerHTML = "00:00:00 s";
       clearLaps();
       createRssiChart();
+    });
+
+  fetch("/status")
+    .then((response) => response.text())
+    .then((response) => {
+      console.log({response});
+
+      const batteryVoltageMatch = response.match(/Battery Voltage:\s*([\d.]+v)/);
+      const batteryVoltage = batteryVoltageMatch ? batteryVoltageMatch[1] : null;
+      batteryElem.innerText = "Battery Voltage: " + batteryVoltage;
+    })
+    .catch((error) => {
+      console.log("error fetch /status");
     });
 }
 
@@ -320,41 +338,51 @@ function addLap(lapStr) {
     ).toFixed(2);
     cell4.innerHTML = last3lapStr;
   }
+
+  var speakText = "";
   switch (announcerSelect.options[announcerSelect.selectedIndex].value) {
     case "beep":
       beep(100, 330, "square");
       break;
     case "1lap":
       const lapNoStr = pilotName + " Lap " + lapNo + ", ";
-      const text = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
-      $(text).articulate("rate", announcerRate).articulate("speak");
+      speakText = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
       break;
     case "2lap":
       if (last2lapStr != "") {
-        const text2 =
+        speakText =
           "<p>" +
           pilotName +
           " 2 laps " +
           last2lapStr.replace(".", ",") +
           "</p>";
-        $(text2).articulate("rate", announcerRate).articulate("speak");
       }
       break;
     case "3lap":
       if (last3lapStr != "") {
-        const text3 =
+        speakText =
           "<p>" +
           pilotName +
           " 3 laps " +
           last3lapStr.replace(".", ",") +
           "</p>";
-        $(text3).articulate("rate", announcerRate).articulate("speak");
       }
       break;
     default:
       break;
   }
   last2laps.push(newLap);
+
+  const timelap = parseFloat(lapStr).toFixed(2);
+  arrayLaps.push(timelap);
+  const fastestlap = Math.min(...arrayLaps).toFixed(2);
+
+  if (fastestlap.toString() === timelap.toString()) {
+    fastestlaptimeElem.innerText = "Fastest Lap Time: " + fastestlap + "s";
+    speakText = "record, " + speakText; 
+  }
+
+  $("<p>" + speakText + "</p>").articulate("rate", announcerRate).articulate("speak");
 }
 
 function startTimer() {
@@ -435,6 +463,8 @@ function clearLaps() {
   }
   lapNo = 0;
   last2laps = [];
+  arrayLaps = [];
+  fastestlaptimeElem.innerText = "Fastest Lap Time: --";
 }
 
 if (!!window.EventSource) {
