@@ -108,7 +108,7 @@ uint32_t LapTimer::getLapTime() {
     uint32_t lapTime = 0;
     lapAvailable = false;
     if (lapCount == 0) {
-        lapTime = lapTimes[LAPTIMER_LAP_HISTORY];
+        lapTime = lapTimes[LAPTIMER_LAP_HISTORY - 1];
     } else {
         lapTime = lapTimes[lapCount - 1];
     }
