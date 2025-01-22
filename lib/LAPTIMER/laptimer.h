@@ -11,7 +11,7 @@ typedef enum
     RUNNING
 } laptimer_state_e;
 
-#define LAPTIMER_LAP_HISTORY 50
+#define LAPTIMER_LAP_HISTORY 10
 #define LAPTIMER_RSSI_HISTORY 100
 
 class LapTimer
@@ -32,6 +32,8 @@ private:
     Buzzer *buz;
     Led *led;
     KalmanFilter filter;
+    boolean lapCountWraparound;
+    uint32_t raceStartTimeMs;
     uint32_t startTimeMs;
     uint8_t lapCount;
     uint8_t rssiCount;
