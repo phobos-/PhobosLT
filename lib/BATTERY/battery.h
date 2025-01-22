@@ -7,19 +7,21 @@
 #define MONITOR_BEEP_TIME_MS 500
 #define AVERAGING_SIZE 5
 
-typedef enum {
+typedef enum
+{
     ALARM_OFF,
     ALARM_IDLE,
     ALARM_BEEPING
 } alarm_state_e;
 
-class BatteryMonitor {
-   public:
+class BatteryMonitor
+{
+public:
     void init(uint8_t pin, uint8_t batScale, uint8_t batAdd, Buzzer *buzzer, Led *l);
     uint8_t getBatteryVoltage();
     void checkBatteryState(uint32_t currentTimeMs, uint8_t alarmThreshold);
 
-   private:
+private:
     alarm_state_e state = ALARM_OFF;
     uint16_t measurements[AVERAGING_SIZE];
     uint8_t measurementIndex = 0;

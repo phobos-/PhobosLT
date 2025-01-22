@@ -77,7 +77,7 @@ main {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 8px; 
+  padding: 8px;
 }
 
 .config-container {
@@ -200,43 +200,43 @@ footer {
 
 @media (max-width: 150px) {
   nav {
-      flex-direction: column;
+    flex-direction: column;
   }
 
   .nav-links {
-      margin-top: 16px;
+    margin-top: 16px;
   }
 
   .nav-links li {
-      margin: 8px 0;
+    margin: 8px 0;
   }
 
   .config-item {
-      flex-direction: column;
-      align-items: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .config-item label {
-      flex: 0 0 auto;
-      margin-bottom: 8px;
+    flex: 0 0 auto;
+    margin-bottom: 8px;
   }
 
   .input-with-value {
-      flex-direction: column;
-      align-items: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .input-with-value .val {
-      text-align: left;
-      margin-top: 8px;
+    text-align: left;
+    margin-top: 8px;
   }
 
   table {
-      font-size: 14px;
+    font-size: 14px;
   }
 
   table th,
   table td {
-      padding: 8px;
+    padding: 8px;
   }
 }

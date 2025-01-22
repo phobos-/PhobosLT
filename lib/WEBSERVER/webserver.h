@@ -7,12 +7,13 @@
 #define WIFI_RECONNECT_TIMEOUT_MS 500
 #define WEB_RSSI_SEND_TIMEOUT_MS 200
 
-class Webserver {
-   public:
+class Webserver
+{
+public:
     void init(Config *config, LapTimer *lapTimer, BatteryMonitor *batMonitor, Buzzer *buzzer, Led *l);
     void handleWebUpdate(uint32_t currentTimeMs);
 
-   private:
+private:
     void startServices();
     void sendRssiEvent(uint8_t rssi);
     void sendLaptimeEvent(uint32_t lapTime);

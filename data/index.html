@@ -1,174 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Phobos LapTimer</title>
-    <link rel="icon" type="image/png" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <script src="jquery-3.7.1.min.js"></script>
-    <script src="articulate.min.js"></script>
-    <script src="smoothie.js"></script>
-  </head>
 
-  <body>
-    <header>
-      <nav>
-        <div class="logo">
-          <img src="favicon.ico" alt="PLT" width="64" />
-          <h1>Phobos LapTimer</h1>
-        </div>
-      </nav>
-      <ul class="nav-links">
-        <li><a id="nav-link-config" class="tablinks active" onclick="openTab(event, 'config')">Configuration</a></li>
-        <li><a id="nav-link-race" class="tablinks" onclick="openTab(event, 'race')">Race</a></li>
-        <li><a id="nav-link-calib" class="tablinks" onclick="openTab(event, 'calib')">Calibration</a></li>
-        <li><a id="nav-link-ota" class="tablinks" onclick="openTab(event, 'ota')">Update</a></li>
-      </ul>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phobos LapTimer</title>
+  <link rel="icon" type="image/png" href="favicon.ico" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <script src="jquery-3.7.1.min.js"></script>
+  <script src="articulate.min.js"></script>
+  <script src="smoothie.js"></script>
+</head>
 
-    <main>
-      <div id="config" class="tabcontent">
-        <div class="config-container">
-          <div id="bandChannelFreq">
-            <div class="config-item">
-              <label for="bandSelect">Band:</label>
-              <select id="bandSelect">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="R">R</option>
-                <option value="L">L</option>
-              </select>
-            </div>
+<body>
+  <header>
+    <nav>
+      <div class="logo">
+        <img src="favicon.ico" alt="PLT" width="64" />
+        <h1>Phobos LapTimer</h1>
+      </div>
+    </nav>
+    <ul class="nav-links">
+      <li><a id="nav-link-config" class="tablinks active" onclick="openTab(event, 'config')">Configuration</a></li>
+      <li><a id="nav-link-race" class="tablinks" onclick="openTab(event, 'race')">Race</a></li>
+      <li><a id="nav-link-calib" class="tablinks" onclick="openTab(event, 'calib')">Calibration</a></li>
+      <li><a id="nav-link-ota" class="tablinks" onclick="openTab(event, 'ota')">Update</a></li>
+    </ul>
+  </header>
 
-            <div class="config-item">
-              <label for="channelSelect">Channel:</label>
-              <select id="channelSelect">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-              </select>
-            </div>
-
-            <div class="config-item">
-              <span id="freqOutput"></span>
-            </div>
-          </div>
-
+  <main>
+    <div id="config" class="tabcontent">
+      <div class="config-container">
+        <div id="bandChannelFreq">
           <div class="config-item">
-            <label for="minLap">Minimum Lap Time:</label>
-            <div class="input-with-value">
-              <span class="val">10.0s</span>
-              <input type="range" id="minLap" step="0.5" min="1" max="10" value="10.0" oninput="updateMinLap(this,value)" />
-            </div>
-          </div>
-
-          <div class="config-item">
-            <label for="alarmThreshold">Low Battery Alarm:</label>
-            <div class="input-with-value">
-              <span class="val">3.6v</span>
-              <input type="range" id="alarmThreshold" step="0.1" min="2.6" max="3.6" value="3.0" oninput="updateAlarmThreshold(this,value)" />
-            </div>
-          </div>
-
-          <div class="config-item">
-            <label for="announcerSelect">Announcer Type:</label>
-            <select id="announcerSelect">
-              <option value="none">None</option>
-              <option value="beep">Beep</option>
-              <option value="1lap">Lap Time</option>
-              <option value="2lap">2 Consecutive Laps Time</option>
-              <option value="3lap">3 Consecutive Laps Time</option>
+            <label for="bandSelect">Band:</label>
+            <select id="bandSelect">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="R">R</option>
+              <option value="L">L</option>
             </select>
           </div>
 
           <div class="config-item">
-            <label for="rate">Announcer Rate:</label>
-            <div class="input-with-value">
-              <span class="val">1.0</span>
-              <input type="range" min="0.1" max="2" step="0.1" id="rate" value="1.0" oninput="updateAnnouncerRate(this,value)" />
-            </div>
+            <label for="channelSelect">Channel:</label>
+            <select id="channelSelect">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+            </select>
           </div>
 
           <div class="config-item">
-            <label for="pname">Pilot name:</label>
-            <input type="text" id="pname" maxlength="20" />
-          </div>
-
-          <div class="config-item">
-            <label for="bvolt">Battery voltage:</label>
-            <span class="val" id="bvolt"></span>
-          </div>
-
-          <div class="config-item" style="display: none">
-            <label for="ssid">WiFi SSID:</label>
-            <input type="text" id="ssid" maxlength="32" />
-          </div>
-
-          <div class="config-item" style="display: none">
-            <label for="pwd">WiFi Password:</label>
-            <input type="password" id="pwd" maxlength="32" />
+            <span id="freqOutput"></span>
           </div>
         </div>
-        <button onclick="saveConfig()">Save Configuration</button>
-      </div>
 
-      <div id="race" class="tabcontent">
-        <span id="timer">00:00:00 s</span>
-        <div class="racebuttons">
-          <button id="startRaceButton" onclick="startRace()">Start Race</button>
-          <button id="stopRaceButton" onclick="stopRace()" disabled>Stop Race</button>
-          <button id="clearLapsButton" onclick="clearLaps()">Clear Laps</button>
-        </div>
-        <table id="lapTable">
-          <tr>
-            <th>Lap No</th>
-            <th>Lap Time</th>
-            <th>2 Lap Time</th>
-            <th>3 Lap Time</th>
-          </tr>
-        </table>
-      </div>
-
-      <div id="calib" class="tabcontent">
-        <div>
-          <canvas id="rssiChart"></canvas>
-        </div>
         <div class="config-item">
-          <label for="enter">Enter RSSI:</label>
+          <label for="minLap">Minimum Lap Time:</label>
           <div class="input-with-value">
-            <span id="enterSpan" class="val">120</span>
-            <input type="range" min="50" max="255" step="1" id="enter" value="120" oninput="updateEnterRssi(this,value)" />
+            <span class="val">10.0s</span>
+            <input type="range" id="minLap" step="0.5" min="1" max="10" value="10.0"
+              oninput="updateMinLap(this,value)" />
           </div>
         </div>
+
         <div class="config-item">
-          <label for="exit">Exit RSSI:</label>
+          <label for="alarmThreshold">Low Battery Alarm:</label>
           <div class="input-with-value">
-            <span id="exitSpan" class="val">100</span>
-            <input type="range" min="50" max="255" step="1" id="exit" value="100" oninput="updateExitRssi(this,value)" />
+            <span class="val">3.6v</span>
+            <input type="range" id="alarmThreshold" step="0.1" min="2.6" max="3.6" value="3.0"
+              oninput="updateAlarmThreshold(this,value)" />
           </div>
         </div>
-        <button onclick="saveConfig()">Save RSSI Thresholds</button>
-      </div>
 
-      <div id="ota" class="tabcontent">
-        <div class="firmware-update">
-            <iframe src="http://20.0.0.1/update" width="100%" height="600px" frameborder="0"></iframe>
+        <div class="config-item">
+          <label for="announcerSelect">Announcer Type:</label>
+          <select id="announcerSelect">
+            <option value="none">None</option>
+            <option value="beep">Beep</option>
+            <option value="1lap">Lap Time</option>
+            <option value="2lap">2 Consecutive Laps Time</option>
+            <option value="3lap">3 Consecutive Laps Time</option>
+          </select>
+        </div>
+
+        <div class="config-item">
+          <label for="rate">Announcer Rate:</label>
+          <div class="input-with-value">
+            <span class="val">1.0</span>
+            <input type="range" min="0.1" max="2" step="0.1" id="rate" value="1.0"
+              oninput="updateAnnouncerRate(this,value)" />
+          </div>
+        </div>
+
+        <div class="config-item">
+          <label for="pname">Pilot name:</label>
+          <input type="text" id="pname" maxlength="20" />
+        </div>
+
+        <div class="config-item">
+          <label for="bvolt">Battery voltage:</label>
+          <span class="val" id="bvolt"></span>
+        </div>
+
+        <div class="config-item" style="display: none">
+          <label for="ssid">WiFi SSID:</label>
+          <input type="text" id="ssid" maxlength="32" />
+        </div>
+
+        <div class="config-item" style="display: none">
+          <label for="pwd">WiFi Password:</label>
+          <input type="password" id="pwd" maxlength="32" />
         </div>
       </div>
-    </main>
+      <button onclick="saveConfig()">Save Configuration</button>
+    </div>
 
-    <footer>
-      <p>Powered by <a href="https://github.com/phobos-/PhobosLT" target="_blank" style="color: white">PhobosLT</a></p>
-    </footer>
+    <div id="race" class="tabcontent">
+      <span id="timer">00:00:00 s</span>
+      <div class="racebuttons">
+        <button id="startRaceButton" onclick="startRace()">Start Race</button>
+        <button id="stopRaceButton" onclick="stopRace()" disabled>Stop Race</button>
+        <button id="clearLapsButton" onclick="clearLaps()">Clear Laps</button>
+      </div>
+      <table id="lapTable">
+        <tr>
+          <th>Lap No</th>
+          <th>Lap Time</th>
+          <th>2 Lap Time</th>
+          <th>3 Lap Time</th>
+        </tr>
+      </table>
+    </div>
 
-    <script src="script.js"></script>
-  </body>
+    <div id="calib" class="tabcontent">
+      <div>
+        <canvas id="rssiChart"></canvas>
+      </div>
+      <div class="config-item">
+        <label for="enter">Enter RSSI:</label>
+        <div class="input-with-value">
+          <span id="enterSpan" class="val">120</span>
+          <input type="range" min="50" max="255" step="1" id="enter" value="120"
+            oninput="updateEnterRssi(this,value)" />
+        </div>
+      </div>
+      <div class="config-item">
+        <label for="exit">Exit RSSI:</label>
+        <div class="input-with-value">
+          <span id="exitSpan" class="val">100</span>
+          <input type="range" min="50" max="255" step="1" id="exit" value="100" oninput="updateExitRssi(this,value)" />
+        </div>
+      </div>
+      <button onclick="saveConfig()">Save RSSI Thresholds</button>
+    </div>
+
+    <div id="ota" class="tabcontent">
+      <div class="firmware-update">
+        <iframe src="http://20.0.0.1/update" width="100%" height="600px" frameborder="0"></iframe>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Powered by <a href="https://github.com/phobos-/PhobosLT" target="_blank" style="color: white">PhobosLT</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
 </html>

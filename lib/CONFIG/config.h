@@ -18,7 +18,7 @@
 
 */
 
-//ESP23-C3
+// ESP23-C3
 #if defined(ESP32C3)
 
 #define PIN_LED 1
@@ -26,13 +26,13 @@
 #define VBAT_SCALE 2
 #define VBAT_ADD 2
 #define PIN_RX5808_RSSI 3
-#define PIN_RX5808_DATA 6     //CH1
-#define PIN_RX5808_SELECT 7   //CH2
-#define PIN_RX5808_CLOCK 4    //CH3
+#define PIN_RX5808_DATA 6   // CH1
+#define PIN_RX5808_SELECT 7 // CH2
+#define PIN_RX5808_CLOCK 4  // CH3
 #define PIN_BUZZER 5
 #define BUZZER_INVERTED false
 
-//ESP32-S3
+// ESP32-S3
 #elif defined(ESP32S3)
 
 #define PIN_LED 2
@@ -40,13 +40,13 @@
 #define VBAT_SCALE 2
 #define VBAT_ADD 2
 #define PIN_RX5808_RSSI 13
-#define PIN_RX5808_DATA 11     //CH1
-#define PIN_RX5808_SELECT 10   //CH2
-#define PIN_RX5808_CLOCK 12    //CH3
+#define PIN_RX5808_DATA 11   // CH1
+#define PIN_RX5808_SELECT 10 // CH2
+#define PIN_RX5808_CLOCK 12  // CH3
 #define PIN_BUZZER 3
 #define BUZZER_INVERTED false
 
-//ESP32
+// ESP32
 #else
 
 #define PIN_LED 21
@@ -54,9 +54,9 @@
 #define VBAT_SCALE 2
 #define VBAT_ADD 2
 #define PIN_RX5808_RSSI 33
-#define PIN_RX5808_DATA 19   //CH1
-#define PIN_RX5808_SELECT 22 //CH2
-#define PIN_RX5808_CLOCK 23  //CH3
+#define PIN_RX5808_DATA 19   // CH1
+#define PIN_RX5808_SELECT 22 // CH2
+#define PIN_RX5808_CLOCK 23  // CH3
 #define PIN_BUZZER 27
 #define BUZZER_INVERTED false
 
@@ -69,7 +69,8 @@
 
 #define EEPROM_CHECK_TIME_MS 1000
 
-typedef struct {
+typedef struct
+{
     uint32_t version;
     uint16_t frequency;
     uint8_t minLap;
@@ -83,13 +84,14 @@ typedef struct {
     char password[33];
 } laptimer_config_t;
 
-class Config {
-   public:
+class Config
+{
+public:
     void init();
     void load();
     void write();
-    void toJson(AsyncResponseStream& destination);
-    void toJsonString(char* buf);
+    void toJson(AsyncResponseStream &destination);
+    void toJsonString(char *buf);
     void fromJson(JsonObject source);
     void handleEeprom(uint32_t currentTimeMs);
 
@@ -99,10 +101,10 @@ class Config {
     uint8_t getAlarmThreshold();
     uint8_t getEnterRssi();
     uint8_t getExitRssi();
-    char* getSsid();
-    char* getPassword();
+    char *getSsid();
+    char *getPassword();
 
-   private:
+private:
     laptimer_config_t conf;
     bool modified;
     volatile uint32_t checkTimeMs = 0;

@@ -13,8 +13,10 @@ static BatteryMonitor monitor;
 
 static TaskHandle_t xTimerTask = NULL;
 
-static void parallelTask(void *pvArgs) {
-    for (;;) {
+static void parallelTask(void *pvArgs)
+{
+    for (;;)
+    {
         uint32_t currentTimeMs = millis();
         buzzer.handleBuzzer(currentTimeMs);
         led.handleLed(currentTimeMs);
@@ -27,12 +29,14 @@ static void parallelTask(void *pvArgs) {
     }
 }
 
-static void initParallelTask() {
+static void initParallelTask()
+{
     disableCore0WDT();
     xTaskCreatePinnedToCore(parallelTask, "parallelTask", 3000, NULL, 0, &xTimerTask, 0);
 }
 
-void setup() {
+void setup()
+{
     DEBUG_INIT;
     config.init();
     rx.init();
@@ -46,7 +50,8 @@ void setup() {
     initParallelTask();
 }
 
-void loop() {
+void loop()
+{
     uint32_t currentTimeMs = millis();
     timer.handleLapTimerUpdate(currentTimeMs);
     ElegantOTA.loop();

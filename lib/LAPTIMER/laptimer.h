@@ -4,7 +4,8 @@
 #include "kalman.h"
 #include "led.h"
 
-typedef enum {
+typedef enum
+{
     STOPPED,
     WAITING,
     RUNNING
@@ -13,8 +14,9 @@ typedef enum {
 #define LAPTIMER_LAP_HISTORY 50
 #define LAPTIMER_RSSI_HISTORY 100
 
-class LapTimer {
-   public:
+class LapTimer
+{
+public:
     void init(Config *config, RX5808 *rx5808, Buzzer *buzzer, Led *l);
     void start();
     void stop();
@@ -23,7 +25,7 @@ class LapTimer {
     uint32_t getLapTime();
     bool isLapAvailable();
 
-   private:
+private:
     laptimer_state_e state = STOPPED;
     RX5808 *rx;
     Config *conf;
