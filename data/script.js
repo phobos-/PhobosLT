@@ -41,6 +41,8 @@ const timer = document.getElementById("timer");
 const startRaceButton = document.getElementById("startRaceButton");
 const stopRaceButton = document.getElementById("stopRaceButton");
 
+const batteryVoltageDisplay = document.getElementById("bvolt");
+
 const rssiBuffer = [];
 var rssiValue = 0;
 var rssiSending = false;
@@ -84,6 +86,18 @@ onload = function (e) {
       createRssiChart();
     });
 };
+
+function getBatteryVoltage() {
+  fetch("/status")
+    .then((response) => response.text())
+    .then((response) => {
+      const batteryVoltageMatch = response.match(/Battery Voltage:\s*([\d.]+v)/);
+      const batteryVoltage = batteryVoltageMatch ? batteryVoltageMatch[1] : null;
+      batteryVoltageDisplay.innerText = batteryVoltage;
+    });
+}
+
+setInterval(getBatteryVoltage, 2000);
 
 function addRssiPoint() {
   if (calib.style.display != "none") {
