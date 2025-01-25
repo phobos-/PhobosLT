@@ -51,6 +51,9 @@ var rssiCrossingSeries = new TimeSeries();
 var maxRssiValue = enterRssi + 10;
 var minRssiValue = exitRssi - 10;
 
+var audioEnabled = false;
+var speakObjsQueue = [];
+
 onload = function (e) {
   config.style.display = "block";
   race.style.display = "none";
@@ -296,7 +299,6 @@ function beep(duration, frequency, type) {
 }
 
 function addLap(lapStr) {
-  $().articulate("stop");
   const pilotName = pilotNameInput.value;
   var last2lapStr = "";
   var last3lapStr = "";
@@ -329,27 +331,27 @@ function addLap(lapStr) {
       break;
     case "1lap":
       if (lapNo == 0) {
-        $("<p>Hole Shot<p>").articulate("rate", announcerRate).articulate("speak");
+        queueSpeak("<p>Hole Shot<p>");
       } else {
         const lapNoStr = pilotName + " Lap " + lapNo + ", ";
         const text = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
-        $(text).articulate("rate", announcerRate).articulate("speak");
+        queueSpeak(text);
       }
       break;
     case "2lap":
       if (lapNo == 0) {
-        $("<p>Hole Shot<p>").articulate("rate", announcerRate).articulate("speak");
+        queueSpeak("<p>Hole Shot<p>");
       } else if (last2lapStr != "") {
         const text2 = "<p>" + pilotName + " 2 laps " + last2lapStr.replace(".", ",") + "</p>";
-        $(text2).articulate("rate", announcerRate).articulate("speak");
+        queueSpeak(text2);
       }
       break;
     case "3lap":
       if (lapNo == 0) {
-        $("<p>Hole Shot<p>").articulate("rate", announcerRate).articulate("speak");
+        queueSpeak("<p>Hole Shot<p>");
       } else if (last3lapStr != "") {
         const text3 = "<p>" + pilotName + " 3 laps " + last3lapStr.replace(".", ",") + "</p>";
-        $(text3).articulate("rate", announcerRate).articulate("speak");
+        queueSpeak(text3);
       }
       break;
     default:
@@ -395,12 +397,52 @@ function startTimer() {
     .then((response) => console.log("/timer/start:" + JSON.stringify(response)));
 }
 
+function queueSpeak(obj) {
+  if (!audioEnabled) {
+    return;
+  }
+  speakObjsQueue.push(obj);
+}
+
+async function enableAudioLoop() {
+  audioEnabled = true;
+  while(audioEnabled) {
+    if (speakObjsQueue.length > 0) {
+      let isSpeakingFlag = $().articulate('isSpeaking');
+      if (!isSpeakingFlag) {
+        let obj = speakObjsQueue.shift();
+        doSpeak(obj);
+      }
+    }
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+function disableAudioLoop() {
+  audioEnabled = false;
+}
+function generateAudio() {
+  if (!audioEnabled) {
+    return;
+  }
+
+  const pilotName = pilotNameInput.value;
+  queueSpeak('<div>testing sound for pilot ' + pilotName + '</div>');
+  for (let i = 1; i <= 3; i++) {
+    queueSpeak('<div>' + i + '</div>')
+  }
+}
+
+function doSpeak(obj) {
+  $(obj).articulate("rate", announcerRate).articulate('speak');
+}
+
 async function startRace() {
   //stopRace();
   startRaceButton.disabled = true;
+  queueSpeak('<p>Starting race in less than five</p>');
+  await new Promise((r) => setTimeout(r, 2000));
   beep(1, 1, "square"); // needed for some reason to make sure we fire the first beep
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
   beep(100, 440, "square");
   await new Promise((r) => setTimeout(r, 1000));
   beep(100, 440, "square");
@@ -411,6 +453,7 @@ async function startRace() {
 }
 
 function stopRace() {
+  queueSpeak('<p>Race stopped</p>');
   clearInterval(timerInterval);
   timer.innerHTML = "00:00:00 s";
 
