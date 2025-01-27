@@ -326,17 +326,17 @@ function addLap(lapStr) {
   const cell4 = row.insertCell(3);
   cell1.innerHTML = lapNo;
   if (lapNo == 0) {
-    cell2.innerHTML = "Hole Shot";
+    cell2.innerHTML = "Hole Shot: " + lapStr + "s";
   } else {
-    cell2.innerHTML = lapStr + " s";
+    cell2.innerHTML = lapStr + "s";
   }
   if (lapTimes.length >= 2 && lapNo != 0) {
     last2lapStr = (newLap + lapTimes[lapTimes.length - 1]).toFixed(2);
-    cell3.innerHTML = last2lapStr + " s";
+    cell3.innerHTML = last2lapStr + "s";
   }
   if (lapTimes.length >= 3 && lapNo != 0) {
     last3lapStr = (newLap + lapTimes[lapTimes.length - 2] + lapTimes[lapTimes.length - 1]).toFixed(2);
-    cell4.innerHTML = last3lapStr + " s";
+    cell4.innerHTML = last3lapStr + "s";
   }
 
   switch (announcerSelect.options[announcerSelect.selectedIndex].value) {
@@ -345,26 +345,26 @@ function addLap(lapStr) {
       break;
     case "1lap":
       if (lapNo == 0) {
-        queueSpeak("<p>Hole Shot<p>");
+        queueSpeak(`<p>Hole Shot ${lapStr}<p>`);
       } else {
         const lapNoStr = pilotName + " Lap " + lapNo + ", ";
-        const text = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
+        const text = "<p>" + lapNoStr + lapStr + "</p>";
         queueSpeak(text);
       }
       break;
     case "2lap":
       if (lapNo == 0) {
-        queueSpeak("<p>Hole Shot<p>");
+        queueSpeak(`<p>Hole Shot ${lapStr}<p>`);
       } else if (last2lapStr != "") {
-        const text2 = "<p>" + pilotName + " 2 laps " + last2lapStr.replace(".", ",") + "</p>";
+        const text2 = "<p>" + pilotName + " 2 laps " + last2lapStr + "</p>";
         queueSpeak(text2);
       }
       break;
     case "3lap":
       if (lapNo == 0) {
-        queueSpeak("<p>Hole Shot<p>");
+        queueSpeak(`<p>Hole Shot ${lapStr}<p>`);
       } else if (last3lapStr != "") {
-        const text3 = "<p>" + pilotName + " 3 laps " + last3lapStr.replace(".", ",") + "</p>";
+        const text3 = "<p>" + pilotName + " 3 laps " + last3lapStr + "</p>";
         queueSpeak(text3);
       }
       break;
