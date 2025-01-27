@@ -81,7 +81,7 @@ onload = function (e) {
       stopRaceButton.disabled = true;
       startRaceButton.disabled = false;
       clearInterval(timerInterval);
-      timer.innerHTML = "00:00:00 s";
+      timer.innerHTML = "00:00:00s";
       clearLaps();
       createRssiChart();
     });
@@ -317,7 +317,7 @@ function addLap(lapStr) {
   const newLap = parseFloat(lapStr);
   lapNo += 1;
   const table = document.getElementById("lapTable");
-  const row = table.insertRow(lapNo + 1);
+  const row = table.insertRow();
   const cell1 = row.insertCell(0);
   const cell2 = row.insertCell(1);
   const cell3 = row.insertCell(2);
@@ -395,7 +395,7 @@ function startTimer() {
     let m = minutes < 10 ? "0" + minutes : minutes;
     let s = seconds < 10 ? "0" + seconds : seconds;
     let ms = millis < 10 ? "0" + millis : millis;
-    timer.innerHTML = `${m}:${s}:${ms} s`;
+    timer.innerHTML = `${m}:${s}:${ms}s`;
   }, 10);
 
   fetch("/timer/start", {
@@ -426,7 +426,7 @@ async function startRace() {
 
 function stopRace() {
   clearInterval(timerInterval);
-  timer.innerHTML = "00:00:00 s";
+  timer.innerHTML = "00:00:00s";
 
   fetch("/timer/stop", {
     method: "POST",
@@ -440,6 +440,9 @@ function stopRace() {
 
   stopRaceButton.disabled = true;
   startRaceButton.disabled = false;
+
+  lapNo = -1;
+  lapTimes = [];
 }
 
 function clearLaps() {
