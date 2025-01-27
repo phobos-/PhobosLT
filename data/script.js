@@ -455,12 +455,11 @@ async function startRace() {
   //stopRace();
   startRaceButton.disabled = true;
   queueSpeak('<p>Starting race in less than five</p>');
-  await new Promise((r) => setTimeout(r, 2000));
+  // Random start time between 1.5 and 6.5 seconds
+  // Accounts for time taken to make previous announcement
+  let delayTime = Math.random() * (6500 - 1500) + 1500;
+  await new Promise((r) => setTimeout(r, delayTime));
   beep(1, 1, "square"); // needed for some reason to make sure we fire the first beep
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
   beep(500, 880, "square");
   startTimer();
   stopRaceButton.disabled = false;
