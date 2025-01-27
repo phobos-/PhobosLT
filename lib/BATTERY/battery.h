@@ -22,11 +22,11 @@ class BatteryMonitor {
    private:
     alarm_state_e state = ALARM_OFF;
     uint16_t measurements[AVERAGING_SIZE];
-    uint8_t measurementIndex = 0;
-    uint32_t lastCheckTimeMs = 0;
-    uint8_t vbatPin = 0;
-    uint8_t scale = 1;
-    uint8_t add = 0;
+    uint8_t measurementIndex;
+    uint32_t lastCheckTimeMs;
+    uint8_t vbatPin;
+    uint8_t scale;
+    uint8_t add;
     Buzzer *buz;
     Led *led;
 };
