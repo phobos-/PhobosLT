@@ -20,6 +20,7 @@ void LapTimer::init(Config *config, RX5808 *rx5808, Buzzer *buzzer, Led *l) {
 
 void LapTimer::start() {
     DEBUG("LapTimer started\n");
+    raceStartTimeMs = millis();
     state = RUNNING;
     buz->beep(500);
     led->on(500);
@@ -28,6 +29,7 @@ void LapTimer::start() {
 void LapTimer::stop() {
     DEBUG("LapTimer stopped\n");
     state = STOPPED;
+    lapCountWraparound = false;
     lapCount = 0;
     rssiCount = 0;
     memset(lapTimes, 0, sizeof(lapTimes));
@@ -95,7 +97,18 @@ void LapTimer::startLap() {
 
 void LapTimer::finishLap() {
     lapTimes[lapCount] = rssiPeakTimeMs - startTimeMs;
+    if (lapCount == 0 && lapCountWraparound == false)
+    {
+        lapTimes[0] = rssiPeakTimeMs - raceStartTimeMs;
+    }
+    else
+    {
+        lapTimes[lapCount] = rssiPeakTimeMs - startTimeMs;
+    }
     DEBUG("Lap finished, lap time = %u\n", lapTimes[lapCount]);
+    if ((lapCount + 1) % LAPTIMER_LAP_HISTORY == 0) {
+        lapCountWraparound = true;
+    }
     lapCount = (lapCount + 1) % LAPTIMER_LAP_HISTORY;
     lapAvailable = true;
 }
