@@ -452,12 +452,21 @@ function doSpeak(obj) {
 }
 
 async function startRace() {
-  //stopRace();
   startRaceButton.disabled = true;
-  queueSpeak('<p>Starting race in less than five</p>');
-  // Random start time between 1.5 and 6.5 seconds
+  // Calculate time taken to say starting phrase
+  const baseWordsPerMinute = 150;
+  let baseWordsPerSecond = baseWordsPerMinute / 60;
+  let wordsPerSecond = baseWordsPerSecond * announcerRate;
+  // 3 words in "Arm your quad"
+  let timeToSpeak1 = 3 / wordsPerSecond * 1000; 
+  queueSpeak("<p>Arm your quad</p>");
+  await new Promise((r) => setTimeout(r, timeToSpeak1));
+  // 8 words in "Starting on the tone in less than five"
+  let timeToSpeak2 = 8 / wordsPerSecond * 1000; 
+  queueSpeak("<p>Starting on the tone in less than five</p>");
+  // Random start time between 1 and 5 seconds
   // Accounts for time taken to make previous announcement
-  let delayTime = Math.random() * (6500 - 1500) + 1500;
+  let delayTime = (Math.random() * (5000 - 1000)) + timeToSpeak2;
   await new Promise((r) => setTimeout(r, delayTime));
   beep(1, 1, "square"); // needed for some reason to make sure we fire the first beep
   beep(500, 880, "square");
