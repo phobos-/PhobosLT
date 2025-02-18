@@ -28,6 +28,9 @@ const race = document.getElementById("race");
 const calib = document.getElementById("calib");
 const ota = document.getElementById("ota");
 
+var startDelay = 5;
+var countdownDuration = 5;
+
 var enterRssi = 120,
   exitRssi = 100;
 var frequency = 0;
@@ -285,6 +288,17 @@ function updateAlarmThreshold(obj, value) {
 //   $().articulate("getVoices", "#voiceSelect", "System Default Announcer Voice");
 // }
 
+document.getElementById('startDelay').addEventListener('input', function(e) {
+  startDelay = parseInt(e.target.value);
+  document.getElementById('startDelayValue').textContent = startDelay;
+});
+
+document.getElementById('countdown').addEventListener('input', function(e) {
+  countdownDuration = parseInt(e.target.value);
+  document.getElementById('countdownValue').textContent = countdownDuration;
+});
+
+
 function beep(duration, frequency, type) {
   var context = new AudioContext();
   var oscillator = context.createOscillator();
@@ -440,13 +454,14 @@ function doSpeak(obj) {
 async function startRace() {
   //stopRace();
   startRaceButton.disabled = true;
-  queueSpeak('<p>Starting race in less than five</p>');
-  await new Promise((r) => setTimeout(r, 2000));
-  beep(1, 1, "square"); // needed for some reason to make sure we fire the first beep
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
+  queueSpeak('<p>Starting race</p>');
+  const totalDelay = startDelay * 1000;
+  const countdownStart = totalDelay - (countdownDuration * 1000);
+  await new Promise(r => setTimeout(r, Math.max(countdownStart, 0)));
+  for(let i = countdownDuration; i > 0; i--) {
+    beep(100, 440, "square");
+    await new Promise(r => setTimeout(r, 1000));
+  }
   beep(500, 880, "square");
   startTimer();
   stopRaceButton.disabled = false;

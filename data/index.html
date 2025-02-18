@@ -102,6 +102,17 @@
             <input type="text" id="pname" maxlength="20" />
           </div>
 
+          <div class="settingsRow">
+            <label>Start Delay (5-120s):</label>
+            <input type="range" class="settingsSlider" id="startDelay" min="5" max="120" value="5">
+            <span id="startDelayValue">5</span>
+          </div>
+          <div class="settingsRow">
+            <label>Countdown Beeps (1-10s):</label>
+            <input type="range" class="settingsSlider" id="countdown" min="1" max="10" value="5">
+            <span id="countdownValue">5</span>
+          </div>
+
           <div class="config-item" style="display: none">
             <label for="ssid">WiFi SSID:</label>
             <input type="text" id="ssid" maxlength="32" />
