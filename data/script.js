@@ -30,6 +30,7 @@ const ota = document.getElementById("ota");
 
 var startDelay = 5;
 var countdownDuration = 5;
+let raceCancelled = false;
 
 var enterRssi = 120,
   exitRssi = 100;
@@ -452,38 +453,48 @@ function doSpeak(obj) {
 }
 
 function startRace() {
+  raceCancelled = false; 
+  stopRaceButton.disabled = false; 
   startRaceButton.disabled = true;
   queueSpeak('<p>Starting race</p>');
   const totalDelay = startDelay * 1000;
   const countdownStart = totalDelay - (countdownDuration * 1000);
   const effectiveCountdownStart = Math.max(countdownStart, 0);
-  if (effectiveCountdownStart > 3000) {                               // Schedule "Pilot ready" 3 seconds before countdown starts, if possible.
+  if (effectiveCountdownStart > 3000) {
     setTimeout(() => {
+      if (raceCancelled) return;
       queueSpeak('<p>Pilot ready</p>');
     }, effectiveCountdownStart - 3000);
   }
-  setTimeout(() => {                                                  // Start countdown beeps after the calculated delay
+  setTimeout(() => {
+    if (raceCancelled) return;
     let remaining = countdownDuration;
-    if (remaining > 0) {                                              // Immediately beep for the first countdown tick
+    if (remaining > 0) {
       beep(100, 440, "square");
       remaining--;
     }
-    const countdownInterval = setInterval(() => {                     // Set up an interval for the remaining countdown beeps
+    const countdownInterval = setInterval(() => {
+      if (raceCancelled) {
+        clearInterval(countdownInterval);
+        return;
+      }
       if (remaining > 0) {
         beep(100, 440, "square");
         remaining--;
       } 
       else {
         clearInterval(countdownInterval);
-        beep(500, 880, "square");                                     // Final beep to signal race start
+        if (raceCancelled) return;
+        beep(500, 880, "square");
         startTimer();
-        stopRaceButton.disabled = false;
       }
     }, 1000);
   }, effectiveCountdownStart);
 }
 
+
 function stopRace() {
+  raceCancelled = true;
   queueSpeak('<p>Race stopped</p>');
   clearInterval(timerInterval);
   timer.innerHTML = "00:00:00 s";
