@@ -451,20 +451,44 @@ function doSpeak(obj) {
   $(obj).articulate("rate", announcerRate).articulate('speak');
 }
 
-async function startRace() {
-  //stopRace();
+function startRace() {
   startRaceButton.disabled = true;
   queueSpeak('<p>Starting race</p>');
   const totalDelay = startDelay * 1000;
   const countdownStart = totalDelay - (countdownDuration * 1000);
-  await new Promise(r => setTimeout(r, Math.max(countdownStart, 0)));
-  for(let i = countdownDuration; i > 0; i--) {
-    beep(100, 440, "square");
-    await new Promise(r => setTimeout(r, 1000));
+  const effectiveCountdownStart = Math.max(countdownStart, 0);
+
+  // Schedule "Pilot ready" 3 seconds before countdown starts, if possible.
+  if (effectiveCountdownStart > 3000) {
+    setTimeout(() => {
+      queueSpeak('<p>Pilot ready</p>');
+    }, effectiveCountdownStart - 3000);
   }
-  beep(500, 880, "square");
-  startTimer();
-  stopRaceButton.disabled = false;
+
+  // Start countdown beeps after the calculated delay
+  setTimeout(() => {
+    let remaining = countdownDuration;
+    
+    // Immediately beep for the first countdown tick
+    if (remaining > 0) {
+      beep(100, 440, "square");
+      remaining--;
+    }
+    
+    // Set up an interval for the remaining countdown beeps
+    const countdownInterval = setInterval(() => {
+      if (remaining > 0) {
+        beep(100, 440, "square");
+        remaining--;
+      } else {
+        clearInterval(countdownInterval);
+        // Final beep to signal race start
+        beep(500, 880, "square");
+        startTimer();
+        stopRaceButton.disabled = false;
+      }
+    }, 1000);
+  }, effectiveCountdownStart);
 }
 
 function stopRace() {
