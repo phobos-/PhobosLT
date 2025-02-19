@@ -472,7 +472,8 @@ function startRace() {
       if (remaining > 0) {
         beep(100, 440, "square");
         remaining--;
-      } else {
+      } 
+      else {
         clearInterval(countdownInterval);
         beep(500, 880, "square");                                     // Final beep to signal race start
         startTimer();
