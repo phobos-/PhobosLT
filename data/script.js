@@ -457,33 +457,24 @@ function startRace() {
   const totalDelay = startDelay * 1000;
   const countdownStart = totalDelay - (countdownDuration * 1000);
   const effectiveCountdownStart = Math.max(countdownStart, 0);
-
-  // Schedule "Pilot ready" 3 seconds before countdown starts, if possible.
-  if (effectiveCountdownStart > 3000) {
+  if (effectiveCountdownStart > 3000) {                               // Schedule "Pilot ready" 3 seconds before countdown starts, if possible.
     setTimeout(() => {
       queueSpeak('<p>Pilot ready</p>');
     }, effectiveCountdownStart - 3000);
   }
-
-  // Start countdown beeps after the calculated delay
-  setTimeout(() => {
+  setTimeout(() => {                                                  // Start countdown beeps after the calculated delay
     let remaining = countdownDuration;
-    
-    // Immediately beep for the first countdown tick
-    if (remaining > 0) {
+    if (remaining > 0) {                                              // Immediately beep for the first countdown tick
       beep(100, 440, "square");
       remaining--;
     }
-    
-    // Set up an interval for the remaining countdown beeps
-    const countdownInterval = setInterval(() => {
+    const countdownInterval = setInterval(() => {                     // Set up an interval for the remaining countdown beeps
       if (remaining > 0) {
         beep(100, 440, "square");
         remaining--;
       } else {
         clearInterval(countdownInterval);
-        // Final beep to signal race start
-        beep(500, 880, "square");
+        beep(500, 880, "square");                                     // Final beep to signal race start
         startTimer();
         stopRaceButton.disabled = false;
       }
