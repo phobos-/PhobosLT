@@ -58,6 +58,16 @@ var minRssiValue = exitRssi - 10;
 var audioEnabled = false;
 var speakObjsQueue = [];
 
+
+let audioContext = null;
+function getAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioContext;
+}
+
+
 onload = function (e) {
   config.style.display = "block";
   race.style.display = "none";
@@ -301,14 +311,15 @@ document.getElementById('countdown').addEventListener('input', function(e) {
 
 
 function beep(duration, frequency, type) {
-  var context = new AudioContext();
-  var oscillator = context.createOscillator();
+  const context = getAudioContext();
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
   oscillator.type = type;
   oscillator.frequency.value = frequency;
-  oscillator.connect(context.destination);
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
   oscillator.start();
-  // Beep for 500 milliseconds
-  setTimeout(function () {
+  setTimeout(() => {
     oscillator.stop();
   }, duration);
 }
@@ -457,38 +468,53 @@ function startRace() {
   stopRaceButton.disabled = false; 
   startRaceButton.disabled = true;
   queueSpeak('<p>Starting race</p>');
+  
   const totalDelay = startDelay * 1000;
   const countdownStart = totalDelay - (countdownDuration * 1000);
   const effectiveCountdownStart = Math.max(countdownStart, 0);
+  
+  // Schedule "Pilot ready" 3 seconds before countdown starts, if possible.
   if (effectiveCountdownStart > 3000) {
     setTimeout(() => {
       if (raceCancelled) return;
       queueSpeak('<p>Pilot ready</p>');
     }, effectiveCountdownStart - 3000);
   }
+  
+  // After the delay, start the countdown using a recursive setTimeout.
   setTimeout(() => {
     if (raceCancelled) return;
     let remaining = countdownDuration;
-    if (remaining > 0) {
-      beep(100, 440, "square");
-      remaining--;
-    }
-    const countdownInterval = setInterval(() => {
-      if (raceCancelled) {
-        clearInterval(countdownInterval);
-        return;
-      }
+    let expectedTime = Date.now();
+    
+    // Function that performs one countdown tick.
+    function countdownTick() {
+      if (raceCancelled) return;
+      const now = Date.now();
+      
+      // If there are beeps remaining, perform a beep.
       if (remaining > 0) {
         beep(100, 440, "square");
         remaining--;
+        expectedTime += 1000;
+        // Calculate drift and schedule next tick.
+        setTimeout(countdownTick, Math.max(0, expectedTime - Date.now()));
       } 
       else {
-        clearInterval(countdownInterval);
         if (raceCancelled) return;
+        // Final beep to signal race start.
         beep(500, 880, "square");
         startTimer();
       }
-    }, 1000);
+    }
+    
+    // Start the countdown immediately with the first tick.
+    if (remaining > 0) {
+      beep(100, 440, "square");
+      remaining--;
+      expectedTime += 1000;
+    }
+    setTimeout(countdownTick, 1000);
   }, effectiveCountdownStart);
 }
 
