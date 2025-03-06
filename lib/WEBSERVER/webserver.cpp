@@ -5,7 +5,9 @@
 #include <ESPmDNS.h>
 #include <LittleFS.h>
 #include <esp_wifi.h>
-
+#include <esp_now.h>
+#include "msp.h"
+#include "msptypes.h"
 #include "debug.h"
 
 static const uint8_t DNS_PORT = 53;
@@ -15,11 +17,142 @@ static IPAddress ipAddress;
 static AsyncWebServer server(80);
 static AsyncEventSource events("/events");
 
+
 static const char *wifi_hostname = "plt";
 static const char *wifi_ap_ssid_prefix = "PhobosLT";
 static const char *wifi_ap_password = "phoboslt";
 static const char *wifi_ap_address = "20.0.0.1";
 String wifi_ap_ssid;
+esp_now_peer_info_t peerInfo;
+uint8_t targetAddress[6];
+uint8_t uniAddress[6];
+MSP msp;
+
+int sendMSPViaEspnow(mspPacket_t *packet)
+{
+  int esp_err = -1;
+  uint8_t packetSize = msp.getTotalPacketSize(packet);
+  uint8_t nowDataOutput[packetSize];
+
+  uint8_t result = msp.convertToByteArray(packet, nowDataOutput);
+  DEBUG("Sending MSP data: ");
+  for (uint16_t i = 0; i < packetSize; ++i) {
+    DEBUG("%u ", nowDataOutput[i]);
+ }
+    DEBUG("\n");
+
+  if (!result)
+  {
+    return esp_err;
+  }
+
+    esp_err = esp_now_send(targetAddress, (uint8_t *) &nowDataOutput, packetSize);
+    if (esp_err != ESP_OK) {
+        DEBUG("Error sending ESP-NOW data: %s\n", esp_err_to_name(esp_err));
+    } else {
+        DEBUG("ESP-NOW data sent successfully\n");
+    }
+
+  return esp_err;
+}
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status)
+{
+    if (status == ESP_NOW_SEND_SUCCESS)
+        DEBUG("SENT OK\n");
+    else
+        DEBUG("SENT FAIL\n");
+}
+
+#define MSP_ELRS_SET_OSD_BEAT                        0x01
+#define MSP_ELRS_SET_OSD_CLEAR                       0x02
+#define MSP_ELRS_SET_OSD_WRITE                       0x03
+#define MSP_ELRS_SET_OSD_SHOW                        0x04
+
+
+mspPacket_t packet;
+void sendMSPOSDMessage(byte subfunction, char msg[]){
+
+    // save param to local
+    packet.reset();
+    packet.makeCommand();
+    packet.function = MSP_ELRS_SET_OSD;
+
+    packet.addByte(subfunction);
+    packet.addByte(3);    
+    packet.addByte(3);    
+    packet.addByte(0); 
+    packet.addByte(0); 
+    if (subfunction == MSP_ELRS_SET_OSD_WRITE)
+    {
+        // Send string to OSD
+        for (int i = 0; i < strlen(msg); i++)
+        {
+            packet.addByte(msg[i]);
+        }
+    }
+    packet.addByte(0); 
+
+    sendMSPViaEspnow(&packet);
+    usleep(100);
+}
+
+void sendElrsHello(){
+    char buf[] = "PLT TIMER CONNECTED!";
+    sendMSPOSDMessage(MSP_ELRS_SET_OSD_CLEAR, buf);
+    sendMSPOSDMessage(MSP_ELRS_SET_OSD_WRITE, buf);
+    sendMSPOSDMessage(MSP_ELRS_SET_OSD_SHOW, buf);
+}
+
+void getLapString(uint32_t lapTime, char *output) {
+    // Calculate hours, minutes and seconds.
+    uint32_t min   = lapTime / 1000 / 60;
+    uint32_t seconds = lapTime / 1000;
+    uint32_t milis = lapTime % 1000;
+
+    // Format the string as "HH:MM:SS".
+    sprintf(output, "%02u:%02u.%03u", min, seconds, milis);
+
+}
+
+void sendElrsEvent(uint32_t lapTime) {
+    char lapTimeMsg[10];
+    getLapString(lapTime, lapTimeMsg);
+
+    char buf[20];
+    snprintf(buf, sizeof(buf), "TIME: %s", lapTimeMsg);
+    DEBUG("Sending ELRS OSD message: %s\n", buf);
+    sendMSPOSDMessage(MSP_ELRS_SET_OSD_CLEAR, buf);
+    sendMSPOSDMessage(MSP_ELRS_SET_OSD_WRITE, buf);
+    sendMSPOSDMessage(MSP_ELRS_SET_OSD_SHOW, buf);
+
+}
+
+void getBindingUID(char *phrase, uint8_t *bindingUID)
+{
+    String bindingPhraseFull = String("-DMY_BINDING_PHRASE=\"") + phrase + "\"";
+    int len = bindingPhraseFull.length();
+    char bindingPhrase[len + 1];
+    bindingPhraseFull.toCharArray(bindingPhrase, len + 1);
+
+    unsigned char md5Hash[16];
+    MD5Builder md5;
+    md5.begin();
+    md5.add(bindingPhrase);
+    md5.calculate();
+    md5.getBytes(md5Hash);
+
+    uint8_t uidBytes[6];
+    memcpy(uidBytes, md5Hash, 6);
+    DEBUG("\nBinding phrase uid: ");
+    for (int i = 0; i < 6; i++)
+    {
+        bindingUID[i] = uidBytes[i];
+        DEBUG("%u,", uidBytes[i]);
+    }
+    DEBUG(". Hello :) \n");
+}
+
 
 void Webserver::init(Config *config, LapTimer *lapTimer, BatteryMonitor *batMonitor, Buzzer *buzzer, Led *l) {
 
@@ -47,6 +180,7 @@ void Webserver::init(Config *config, LapTimer *lapTimer, BatteryMonitor *batMoni
     }
     changeTimeMs = millis();
     lastStatus = WL_DISCONNECTED;
+
 }
 
 void Webserver::sendRssiEvent(uint8_t rssi) {
@@ -56,6 +190,7 @@ void Webserver::sendRssiEvent(uint8_t rssi) {
     events.send(buf, "rssi");
 }
 
+
 void Webserver::sendLaptimeEvent(uint32_t lapTime) {
     if (!servicesStarted) return;
     char buf[16];
@@ -63,9 +198,26 @@ void Webserver::sendLaptimeEvent(uint32_t lapTime) {
     events.send(buf, "lap");
 }
 
+
+void SetSoftMACAddress()
+{
+
+  // MAC address can only be set with unicast, so first byte must be even, not odd
+  
+
+//   WiFi.mode(WIFI_STA);
+
+  
+//   WiFi.begin("network-name", "pass-to-network", 1);
+//   WiFi.disconnect();
+
+}
+
+
 void Webserver::handleWebUpdate(uint32_t currentTimeMs) {
     if (timer->isLapAvailable()) {
         sendLaptimeEvent(timer->getLapTime());
+        sendElrsEvent(timer->getLapTime());
     }
 
     if (sendRssi && ((currentTimeMs - rssiSentMs) > WEB_RSSI_SEND_TIMEOUT_MS)) {
@@ -115,12 +267,45 @@ void Webserver::handleWebUpdate(uint32_t currentTimeMs) {
                 DEBUG("Changing to WiFi AP mode\n");
 
                 WiFi.disconnect();
-                wifiMode = WIFI_AP;
-                WiFi.setHostname(wifi_hostname);  // hostname must be set before the mode is set to STA
-                WiFi.mode(wifiMode);
-                changeTimeMs = currentTimeMs;
+                WiFi.setTxPower(WIFI_POWER_19_5dBm);
+                WiFi.setHostname(wifi_hostname);
                 WiFi.softAPConfig(ipAddress, ipAddress, netMsk);
+                esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE);
+                esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_LR);
                 WiFi.softAP(wifi_ap_ssid.c_str(), wifi_ap_password);
+                WiFi.mode(WIFI_AP_STA);
+                if (conf->getElrsBindPhrase()[0] != 0)
+                {
+
+                    DEBUG("Enablind ESP NOW for backpack\n");
+                    uint8_t bindingUID[6];
+                    getBindingUID(conf->getElrsBindPhrase(), bindingUID);
+
+                    memcpy(targetAddress, bindingUID, sizeof(targetAddress));
+                    memcpy(uniAddress, bindingUID, sizeof(uniAddress));
+                    uniAddress[0] = uniAddress[0] & ~0x01;
+
+                    if (esp_now_init() != 0)
+                    {
+                      DEBUG("Error initializing ESP-NOW\n");
+                      return;
+                    }
+                    esp_wifi_set_mac(WIFI_IF_STA, uniAddress);
+                    memset(&peerInfo, 0, sizeof(peerInfo));
+                    memcpy(peerInfo.peer_addr, targetAddress, 6);
+                    peerInfo.channel = 1;
+                    peerInfo.encrypt = false;
+                    if (esp_now_add_peer(&peerInfo) != ESP_OK)
+                    {
+                        DEBUG("ESP-NOW failed to add peer\n");
+                        return;
+                    }
+    
+                    esp_now_register_send_cb(OnDataSent);
+                    sendElrsHello();
+                }
+
+                DEBUG("Start services\n");
                 startServices();
                 buz->beep(1000);
                 led->on(1000);
@@ -155,6 +340,70 @@ static boolean isIp(String str) {
         }
     }
     return true;
+}
+
+
+static void handleSendMSP(AsyncWebServerRequest *request) {
+
+            // send MSP_ELRS_SET_OSD over ESP-NOW
+            mspPacket_t packet;
+            packet.reset();
+            packet.makeCommand();
+            packet.function = MSP_ELRS_SET_OSD;
+
+            // create dynamic byte array for payload
+            packet.addByte(2); // clear
+            packet.addByte(0);    
+            packet.addByte(0);    
+            packet.addByte(0);      
+            packet.addByte(0);
+    
+            sendMSPViaEspnow(&packet);
+            usleep(100);
+
+    // send message 10 times
+    for (int i = 0; i < 3; i++)
+    {
+        packet.reset();
+        packet.makeCommand();
+        packet.function = MSP_ELRS_SET_OSD;
+
+        // create dynamic byte array for payload
+        packet.addByte(3); //write string
+        packet.addByte(3+i);    
+        packet.addByte(4);    
+        packet.addByte(0); 
+        // Send string to OSD
+        const char *str = "THIS IS ONLY A TEST!";
+        for (int i = 0; i < 6; i++)
+        {
+            packet.addByte(str[i]);
+        }   
+
+        packet.addByte(0);
+
+        sendMSPViaEspnow(&packet);
+        usleep(100);
+    }
+
+            // send MSP_ELRS_SET_OSD over ESP-NOW
+
+            packet.reset();
+            packet.makeCommand();
+            packet.function = MSP_ELRS_SET_OSD;
+
+            // create dynamic byte array for payload
+            packet.addByte(4); // display osd
+            packet.addByte(0);    
+            packet.addByte(0);    
+            packet.addByte(0);      
+            packet.addByte(0);
+    
+            sendMSPViaEspnow(&packet);
+            usleep(100);
+    char response[50];
+    snprintf(response, sizeof(response), "REQ: OK");
+    request->send(200, "text/plain", response);
 }
 
 /** IP to String? */
@@ -247,6 +496,7 @@ void Webserver::startServices() {
     server.on("/check_network_status.txt", handleRoot);
     server.on("/ncsi.txt", handleRoot);
     server.on("/fwlink", handleRoot);
+    server.on("/msp", handleSendMSP);
 
     server.on("/status", [this](AsyncWebServerRequest *request) {
         char buf[1024];
