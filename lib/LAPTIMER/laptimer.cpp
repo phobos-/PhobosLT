@@ -10,6 +10,7 @@ void LapTimer::init(Config *config, RX5808 *rx5808, Buzzer *buzzer, Led *l) {
     rx = rx5808;
     buz = buzzer;
     led = l;
+    startTimeOffsetMs = 0;
 
     filter.setMeasurementNoise(rssi_filter_q * 0.01f);
     filter.setProcessNoise(rssi_filter_r * 0.0001f);
@@ -21,6 +22,7 @@ void LapTimer::init(Config *config, RX5808 *rx5808, Buzzer *buzzer, Led *l) {
 void LapTimer::start() {
     DEBUG("LapTimer started\n");
     state = RUNNING;
+    startTimeOffsetMs = millis(); 
     buz->beep(500);
     led->on(500);
 }
@@ -30,6 +32,7 @@ void LapTimer::stop() {
     state = STOPPED;
     lapCount = 0;
     rssiCount = 0;
+    startTimeOffsetMs = 0;
     memset(lapTimes, 0, sizeof(lapTimes));
     buz->beep(500);
     led->on(500);
@@ -75,7 +78,7 @@ void LapTimer::lapPeakCapture() {
         // Check if RSSI is greater than the previous detected peak
         if (rssi[rssiCount] > rssiPeak) {
             rssiPeak = rssi[rssiCount];
-            rssiPeakTimeMs = millis();
+            rssiPeakTimeMs = millis() - startTimeOffsetMs;
         }
     }
 }
