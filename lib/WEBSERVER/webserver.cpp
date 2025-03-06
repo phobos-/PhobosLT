@@ -17,7 +17,6 @@ static IPAddress ipAddress;
 static AsyncWebServer server(80);
 static AsyncEventSource events("/events");
 
-
 static const char *wifi_hostname = "plt";
 static const char *wifi_ap_ssid_prefix = "PhobosLT";
 static const char *wifi_ap_password = "phoboslt";
@@ -69,11 +68,9 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status)
 #define MSP_ELRS_SET_OSD_WRITE                       0x03
 #define MSP_ELRS_SET_OSD_SHOW                        0x04
 
-
 mspPacket_t packet;
 void sendMSPOSDMessage(byte subfunction, char msg[]){
 
-    // save param to local
     packet.reset();
     packet.makeCommand();
     packet.function = MSP_ELRS_SET_OSD;
@@ -85,7 +82,6 @@ void sendMSPOSDMessage(byte subfunction, char msg[]){
     packet.addByte(0); 
     if (subfunction == MSP_ELRS_SET_OSD_WRITE)
     {
-        // Send string to OSD
         for (int i = 0; i < strlen(msg); i++)
         {
             packet.addByte(msg[i]);
@@ -105,14 +101,11 @@ void sendElrsHello(){
 }
 
 void getLapString(uint32_t lapTime, char *output) {
-    // Calculate hours, minutes and seconds.
     uint32_t min   = lapTime / 1000 / 60;
     uint32_t seconds = lapTime / 1000;
     uint32_t milis = lapTime % 1000;
 
-    // Format the string as "HH:MM:SS".
     sprintf(output, "%02u:%02u.%03u", min, seconds, milis);
-
 }
 
 void sendElrsEvent(uint32_t lapTime) {
@@ -125,7 +118,6 @@ void sendElrsEvent(uint32_t lapTime) {
     sendMSPOSDMessage(MSP_ELRS_SET_OSD_CLEAR, buf);
     sendMSPOSDMessage(MSP_ELRS_SET_OSD_WRITE, buf);
     sendMSPOSDMessage(MSP_ELRS_SET_OSD_SHOW, buf);
-
 }
 
 void getBindingUID(char *phrase, uint8_t *bindingUID)
@@ -180,7 +172,6 @@ void Webserver::init(Config *config, LapTimer *lapTimer, BatteryMonitor *batMoni
     }
     changeTimeMs = millis();
     lastStatus = WL_DISCONNECTED;
-
 }
 
 void Webserver::sendRssiEvent(uint8_t rssi) {
@@ -197,22 +188,6 @@ void Webserver::sendLaptimeEvent(uint32_t lapTime) {
     snprintf(buf, sizeof(buf), "%u", lapTime);
     events.send(buf, "lap");
 }
-
-
-void SetSoftMACAddress()
-{
-
-  // MAC address can only be set with unicast, so first byte must be even, not odd
-  
-
-//   WiFi.mode(WIFI_STA);
-
-  
-//   WiFi.begin("network-name", "pass-to-network", 1);
-//   WiFi.disconnect();
-
-}
-
 
 void Webserver::handleWebUpdate(uint32_t currentTimeMs) {
     if (timer->isLapAvailable()) {
@@ -342,70 +317,6 @@ static boolean isIp(String str) {
     return true;
 }
 
-
-static void handleSendMSP(AsyncWebServerRequest *request) {
-
-            // send MSP_ELRS_SET_OSD over ESP-NOW
-            mspPacket_t packet;
-            packet.reset();
-            packet.makeCommand();
-            packet.function = MSP_ELRS_SET_OSD;
-
-            // create dynamic byte array for payload
-            packet.addByte(2); // clear
-            packet.addByte(0);    
-            packet.addByte(0);    
-            packet.addByte(0);      
-            packet.addByte(0);
-    
-            sendMSPViaEspnow(&packet);
-            usleep(100);
-
-    // send message 10 times
-    for (int i = 0; i < 3; i++)
-    {
-        packet.reset();
-        packet.makeCommand();
-        packet.function = MSP_ELRS_SET_OSD;
-
-        // create dynamic byte array for payload
-        packet.addByte(3); //write string
-        packet.addByte(3+i);    
-        packet.addByte(4);    
-        packet.addByte(0); 
-        // Send string to OSD
-        const char *str = "THIS IS ONLY A TEST!";
-        for (int i = 0; i < 6; i++)
-        {
-            packet.addByte(str[i]);
-        }   
-
-        packet.addByte(0);
-
-        sendMSPViaEspnow(&packet);
-        usleep(100);
-    }
-
-            // send MSP_ELRS_SET_OSD over ESP-NOW
-
-            packet.reset();
-            packet.makeCommand();
-            packet.function = MSP_ELRS_SET_OSD;
-
-            // create dynamic byte array for payload
-            packet.addByte(4); // display osd
-            packet.addByte(0);    
-            packet.addByte(0);    
-            packet.addByte(0);      
-            packet.addByte(0);
-    
-            sendMSPViaEspnow(&packet);
-            usleep(100);
-    char response[50];
-    snprintf(response, sizeof(response), "REQ: OK");
-    request->send(200, "text/plain", response);
-}
-
 /** IP to String? */
 static String toStringIp(IPAddress ip) {
     String res = "";
@@ -496,7 +407,6 @@ void Webserver::startServices() {
     server.on("/check_network_status.txt", handleRoot);
     server.on("/ncsi.txt", handleRoot);
     server.on("/fwlink", handleRoot);
-    server.on("/msp", handleSendMSP);
 
     server.on("/status", [this](AsyncWebServerRequest *request) {
         char buf[1024];
