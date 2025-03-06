@@ -32,6 +32,7 @@ static void initParallelTask() {
     xTaskCreatePinnedToCore(parallelTask, "parallelTask", 3000, NULL, 0, &xTimerTask, 0);
 }
 
+
 void setup() {
     DEBUG_INIT;
     config.init();

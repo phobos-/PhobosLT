@@ -13,6 +13,7 @@ const ssidInput = document.getElementById("ssid");
 const pwdInput = document.getElementById("pwd");
 const minLapInput = document.getElementById("minLap");
 const alarmThreshold = document.getElementById("alarmThreshold");
+const elrsBindPhrase = document.getElementById("elrsBindPhrase");
 
 const freqLookup = [
   [5865, 5845, 5825, 5805, 5785, 5765, 5745, 5725],
@@ -85,6 +86,7 @@ onload = function (e) {
       timer.innerHTML = "00:00:00 s";
       clearLaps();
       createRssiChart();
+      elrsBindPhrase.value = config.elrsBindPhrase
     });
 };
 
@@ -245,6 +247,7 @@ function saveConfig() {
       name: pilotNameInput.value,
       ssid: ssidInput.value,
       pwd: pwdInput.value,
+      elrsBindPhrase: elrsBindPhrase.value,
     }),
   })
     .then((response) => response.json())

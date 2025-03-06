@@ -30,6 +30,7 @@ class LapTimer {
     Buzzer *buz;
     Led *led;
     KalmanFilter filter;
+    uint32_t startTimeOffsetMs;
     uint32_t startTimeMs;
     uint8_t lapCount;
     uint8_t rssiCount;
