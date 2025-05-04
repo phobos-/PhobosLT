@@ -41,6 +41,8 @@ const timer = document.getElementById("timer");
 const startRaceButton = document.getElementById("startRaceButton");
 const stopRaceButton = document.getElementById("stopRaceButton");
 
+const batteryVoltageDisplay = document.getElementById("bvolt");
+
 const rssiBuffer = [];
 var rssiValue = 0;
 var rssiSending = false;
@@ -82,11 +84,23 @@ onload = function (e) {
       stopRaceButton.disabled = true;
       startRaceButton.disabled = false;
       clearInterval(timerInterval);
-      timer.innerHTML = "00:00:00 s";
+      timer.innerHTML = "00:00:00s";
       clearLaps();
       createRssiChart();
     });
 };
+
+function getBatteryVoltage() {
+  fetch("/status")
+    .then((response) => response.text())
+    .then((response) => {
+      const batteryVoltageMatch = response.match(/Battery Voltage:\s*([\d.]+v)/);
+      const batteryVoltage = batteryVoltageMatch ? batteryVoltageMatch[1] : null;
+      batteryVoltageDisplay.innerText = batteryVoltage;
+    });
+}
+
+setInterval(getBatteryVoltage, 2000);
 
 function addRssiPoint() {
   if (calib.style.display != "none") {
@@ -305,24 +319,24 @@ function addLap(lapStr) {
   const newLap = parseFloat(lapStr);
   lapNo += 1;
   const table = document.getElementById("lapTable");
-  const row = table.insertRow(lapNo + 1);
+  const row = table.insertRow();
   const cell1 = row.insertCell(0);
   const cell2 = row.insertCell(1);
   const cell3 = row.insertCell(2);
   const cell4 = row.insertCell(3);
   cell1.innerHTML = lapNo;
   if (lapNo == 0) {
-    cell2.innerHTML = "Hole Shot";
+    cell2.innerHTML = "Hole Shot: " + lapStr + "s";
   } else {
-    cell2.innerHTML = lapStr + " s";
+    cell2.innerHTML = lapStr + "s";
   }
   if (lapTimes.length >= 2 && lapNo != 0) {
     last2lapStr = (newLap + lapTimes[lapTimes.length - 1]).toFixed(2);
-    cell3.innerHTML = last2lapStr + " s";
+    cell3.innerHTML = last2lapStr + "s";
   }
   if (lapTimes.length >= 3 && lapNo != 0) {
     last3lapStr = (newLap + lapTimes[lapTimes.length - 2] + lapTimes[lapTimes.length - 1]).toFixed(2);
-    cell4.innerHTML = last3lapStr + " s";
+    cell4.innerHTML = last3lapStr + "s";
   }
 
   switch (announcerSelect.options[announcerSelect.selectedIndex].value) {
@@ -331,26 +345,26 @@ function addLap(lapStr) {
       break;
     case "1lap":
       if (lapNo == 0) {
-        queueSpeak("<p>Hole Shot<p>");
+        queueSpeak(`<p>Hole Shot ${lapStr}<p>`);
       } else {
         const lapNoStr = pilotName + " Lap " + lapNo + ", ";
-        const text = "<p>" + lapNoStr + lapStr.replace(".", ",") + "</p>";
+        const text = "<p>" + lapNoStr + lapStr + "</p>";
         queueSpeak(text);
       }
       break;
     case "2lap":
       if (lapNo == 0) {
-        queueSpeak("<p>Hole Shot<p>");
+        queueSpeak(`<p>Hole Shot ${lapStr}<p>`);
       } else if (last2lapStr != "") {
-        const text2 = "<p>" + pilotName + " 2 laps " + last2lapStr.replace(".", ",") + "</p>";
+        const text2 = "<p>" + pilotName + " 2 laps " + last2lapStr + "</p>";
         queueSpeak(text2);
       }
       break;
     case "3lap":
       if (lapNo == 0) {
-        queueSpeak("<p>Hole Shot<p>");
+        queueSpeak(`<p>Hole Shot ${lapStr}<p>`);
       } else if (last3lapStr != "") {
-        const text3 = "<p>" + pilotName + " 3 laps " + last3lapStr.replace(".", ",") + "</p>";
+        const text3 = "<p>" + pilotName + " 3 laps " + last3lapStr + "</p>";
         queueSpeak(text3);
       }
       break;
@@ -383,7 +397,7 @@ function startTimer() {
     let m = minutes < 10 ? "0" + minutes : minutes;
     let s = seconds < 10 ? "0" + seconds : seconds;
     let ms = millis < 10 ? "0" + millis : millis;
-    timer.innerHTML = `${m}:${s}:${ms} s`;
+    timer.innerHTML = `${m}:${s}:${ms}s`;
   }, 10);
 
   fetch("/timer/start", {
@@ -438,15 +452,23 @@ function doSpeak(obj) {
 }
 
 async function startRace() {
-  //stopRace();
   startRaceButton.disabled = true;
-  queueSpeak('<p>Starting race in less than five</p>');
-  await new Promise((r) => setTimeout(r, 2000));
+  // Calculate time taken to say starting phrase
+  const baseWordsPerMinute = 150;
+  let baseWordsPerSecond = baseWordsPerMinute / 60;
+  let wordsPerSecond = baseWordsPerSecond * announcerRate;
+  // 3 words in "Arm your quad"
+  let timeToSpeak1 = 3 / wordsPerSecond * 1000; 
+  queueSpeak("<p>Arm your quad</p>");
+  await new Promise((r) => setTimeout(r, timeToSpeak1));
+  // 8 words in "Starting on the tone in less than five"
+  let timeToSpeak2 = 8 / wordsPerSecond * 1000; 
+  queueSpeak("<p>Starting on the tone in less than five</p>");
+  // Random start time between 1 and 5 seconds
+  // Accounts for time taken to make previous announcement
+  let delayTime = (Math.random() * (5000 - 1000)) + timeToSpeak2;
+  await new Promise((r) => setTimeout(r, delayTime));
   beep(1, 1, "square"); // needed for some reason to make sure we fire the first beep
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
-  beep(100, 440, "square");
-  await new Promise((r) => setTimeout(r, 1000));
   beep(500, 880, "square");
   startTimer();
   stopRaceButton.disabled = false;
@@ -455,7 +477,7 @@ async function startRace() {
 function stopRace() {
   queueSpeak('<p>Race stopped</p>');
   clearInterval(timerInterval);
-  timer.innerHTML = "00:00:00 s";
+  timer.innerHTML = "00:00:00s";
 
   fetch("/timer/stop", {
     method: "POST",
@@ -469,6 +491,9 @@ function stopRace() {
 
   stopRaceButton.disabled = true;
   startRaceButton.disabled = false;
+
+  lapNo = -1;
+  lapTimes = [];
 }
 
 function clearLaps() {

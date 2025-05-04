@@ -66,7 +66,7 @@
             <label for="minLap">Minimum Lap Time:</label>
             <div class="input-with-value">
               <span class="val">10.0s</span>
-              <input type="range" id="minLap" step="0.5" min="1" max="10" value="10.0" oninput="updateMinLap(this,value)" />
+              <input type="range" id="minLap" step="0.5" min="1" max="20" oninput="updateMinLap(this,value)" />
             </div>
           </div>
 
@@ -74,7 +74,7 @@
             <label for="alarmThreshold">Low Battery Alarm:</label>
             <div class="input-with-value">
               <span class="val">3.6v</span>
-              <input type="range" id="alarmThreshold" step="0.1" min="2.6" max="3.6" value="3.0" oninput="updateAlarmThreshold(this,value)" />
+              <input type="range" id="alarmThreshold" step="0.1" min="0.0" max="3.6" oninput="updateAlarmThreshold(this,value)" />
             </div>
           </div>
 
@@ -93,13 +93,18 @@
             <label for="rate">Announcer Rate:</label>
             <div class="input-with-value">
               <span class="val">1.0</span>
-              <input type="range" min="0.1" max="2" step="0.1" id="rate" value="1.0" oninput="updateAnnouncerRate(this,value)" />
+              <input type="range" min="0.1" max="2" step="0.1" id="rate" oninput="updateAnnouncerRate(this,value)" />
             </div>
           </div>
 
           <div class="config-item">
             <label for="pname">Pilot name:</label>
             <input type="text" id="pname" maxlength="20" />
+          </div>
+
+          <div class="config-item">
+            <label for="bvolt">Battery voltage:</label>
+            <span class="val" id="bvolt"></span>
           </div>
 
           <div class="config-item" style="display: none">
@@ -120,7 +125,7 @@
       </div>
 
       <div id="race" class="tabcontent">
-        <span id="timer">00:00:00 s</span>
+        <span id="timer">00:00:00s</span>
         <div class="racebuttons">
           <button id="startRaceButton" onclick="startRace()">Start Race</button>
           <button id="stopRaceButton" onclick="stopRace()" disabled>Stop Race</button>
