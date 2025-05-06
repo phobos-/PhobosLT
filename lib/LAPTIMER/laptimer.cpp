@@ -131,3 +131,10 @@ uint32_t LapTimer::getLapTime() {
 bool LapTimer::isLapAvailable() {
     return lapAvailable;
 }
+
+uint32_t LapTimer::getLastLapTime() {
+    if (lapCount == 0) {
+        return 0;
+    }
+    return lapTimes[(lapCount - 1) % LAPTIMER_LAP_HISTORY];
+}
