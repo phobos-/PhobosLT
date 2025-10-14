@@ -1,3 +1,4 @@
+#include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 
 #include "battery.h"
