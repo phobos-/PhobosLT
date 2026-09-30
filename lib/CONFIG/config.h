@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 /*
-## Pinout ##
+## Original ESP32 pinout ##
 | ESP32 | RX5880 |
 | :------------- |:-------------|
 | 33 | RSSI |
@@ -18,8 +18,22 @@
 
 */
 
-//ESP23-C3
-#if defined(ESP32C3)
+// LilyGo T-Energy S3 with RX5808 wired to IO9/11/12/13.
+#if defined(TENERGY_S3)
+
+#define PIN_LED 2
+#define PIN_VBAT 3
+#define VBAT_SCALE 2
+#define VBAT_ADD 2
+#define PIN_RX5808_RSSI 9
+#define PIN_RX5808_DATA 11    // CH1
+#define PIN_RX5808_SELECT 12  // CH2
+#define PIN_RX5808_CLOCK 13   // CH3
+#define PIN_BUZZER 14
+#define BUZZER_INVERTED false
+
+// ESP32-C3
+#elif defined(ESP32C3)
 
 #define PIN_LED 1
 #define PIN_VBAT 0
