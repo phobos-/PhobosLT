@@ -1,4 +1,5 @@
 #include <ESPAsyncWebServer.h>
+#include <WiFi.h>
 
 #include "battery.h"
 #include "laptimer.h"

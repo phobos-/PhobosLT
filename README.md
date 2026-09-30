@@ -58,7 +58,7 @@ To build a Phobos LapTimer you will need:
 - (Optional) An LED of any color (+ a matching resistor to manage current).
 - (Optional) A 3v3 to 5v buzzer WITH a generator (so active and not passive).
 
-To connect the RX5808 to the ESP32 use below pinout table. Please note that +5v pin on the RX5808 should be connected to a 3v3 source to undervolt the RX5808 to get a better RSSI resolution and to help with cooling:
+To connect the RX5808 to the original ESP32 board, use the pinout below. Please note that +5v pin on the RX5808 should be connected to a 3v3 source to undervolt the RX5808 to get a better RSSI resolution and to help with cooling:
 | ESP32 PIN | RX5880 |
 | :------------- |:-------------|
 | 33 | RSSI |
@@ -75,7 +75,21 @@ Optional but recommended LED, Buzzer and Battery voltage input pinout:
 | 27 | Buzzer positive (+) |
 | 35 | VBAT input MAX 3.3v (the code assumes a 1/2 voltage divider with a 1s Li-Ion  cell) |
 
-You can find a connection diagram of the peripherals below. **For T-Energy and T-Cell you just need to connect the RX5808 and a buzzer.**
+For a LilyGo T-Energy S3 wired as described here, select the `TEnergyS3` PlatformIO environment for both firmware and filesystem uploads:
+
+| T-Energy S3 GPIO | Peripheral |
+| :------------- | :--------- |
+| IO9 | RX5808 RSSI |
+| IO11 | RX5808 CH1 (DATA) |
+| IO12 | RX5808 CH2 (SELECT) |
+| IO13 | RX5808 CH3 (CLOCK) |
+| IO14 | Active buzzer positive (+) |
+| IO2 | External LED anode (+), through a resistor |
+| IO3 | Built-in battery voltage sense (no external connection) |
+
+The RX5808 ground must share the board ground. Power the RX5808 from the board's 3V3 rail as described above. The battery calculation assumes the T-Energy S3's built-in 2:1 voltage divider; check the displayed voltage against a meter before relying on the low-voltage alarm.
+
+You can find a connection diagram of the original ESP32 peripherals below. The T-Energy S3 wiring is given in the table above.
 
 ![Connection](assets/connection_diagram.png)
 
@@ -113,11 +127,11 @@ Before attemtping to flash ensure there is a connection between the ESP32 and th
 
 ##### Step 1
 
-To flash the firmware, click the `PlatformIO` icon in the toolbar on the left, which will show the list of tasks. Now, select `Project Tasks`, expand `PhobosLT` -> `General` and select `Upload`. You should see the result in the terminal (`Success`). Next, go to step 2.
+To flash the firmware, click the `PlatformIO` icon in the toolbar on the left, which will show the list of tasks. Now, select `Project Tasks`, expand `PhobosLT` -> `General` and select `Upload` (or `TEnergyS3` -> `General` -> `Upload` for the T-Energy S3 wiring above). You should see the result in the terminal (`Success`). Next, go to step 2.
 
 ##### Step 2
 
-Select `Project Tasks`, expand `PhobosLT` -> `Platform` and select `Upload Filesystem Image`. Wait for the result in the terminal saying `Success`. That's it! Your timer is ready to use.
+Select `Project Tasks`, expand the same environment used for the firmware upload (`PhobosLT` or `TEnergyS3`), then select `Platform` -> `Upload Filesystem Image`. Wait for the result in the terminal saying `Success`. That's it! Your timer is ready to use.
 
 If something went wrong - please check the Terminal, too. It will contain at least a hint of what the issue is. Please ask the community for further help on discord!
 
